@@ -1,10 +1,6 @@
 import React, { useState } from 'react'
 
-const Login = () => {
-    
-
-
-
+const Login = ( { handleLogin } ) => {
 
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
@@ -25,18 +21,19 @@ const Login = () => {
   const strength = getStrength(password)
 
   const submitHandler = async (e) => {
-    e.preventDefault()
-    if (!email || !password) {
-      setToast({ type: 'error', msg: 'Please fill in all fields.' })
-      return
-    }
-    setLoading(true)
-    setToast(null)
-    await new Promise(r => setTimeout(r, 1500))
-    setLoading(false)
-    setToast({ type: 'success', msg: 'Logged in successfully!' })
-    console.log('Form submitted', { email, password })
+  e.preventDefault()
+  if (!email || !password) {
+    setToast({ type: 'error', msg: 'Please fill in all fields.' })
+    return
   }
+  setLoading(true)
+  setToast(null)
+  await new Promise(r => setTimeout(r, 1500))
+  setLoading(false)
+
+  // ✅ Actually call handleLogin from App.jsx
+  handleLogin(email, password)
+}
 
   return (
     <div className='flex h-screen w-screen items-center justify-center bg-[#0f0f0f]'>
