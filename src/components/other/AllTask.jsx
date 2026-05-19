@@ -1,33 +1,62 @@
 import React, { useContext } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
 
+const bgColors = ['bg-[#1a3a2a]', 'bg-[#1a2a3a]', 'bg-[#2a1a3a]', 'bg-[#3a1a2a]']
+const textColors = ['text-emerald-400', 'text-blue-400', 'text-purple-400', 'text-pink-400']
+const borderColors = ['border-emerald-800', 'border-blue-800', 'border-purple-800', 'border-pink-800']
+
 const AllTask = () => {
+  const [userData] = useContext(AuthContext)
 
-   const [userData,setUserData] =  useContext(AuthContext)
-
-   
   return (
-    <div className='bg-[#1c1c1c] p-5 rounded mt-5'>
-        <div className='bg-red-400 mb-2 py-2 px-4 flex justify-between rounded'>
-            <h2 className='text-lg font-medium w-1/5'>Employee Name</h2>
-            <h3 className='text-lg font-medium w-1/5'>New Task</h3>
-            <h5 className='text-lg font-medium w-1/5'>Active Task</h5>
-            <h5 className='text-lg font-medium w-1/5'>Completed</h5>
-            <h5 className='text-lg font-medium w-1/5'>Failed</h5>
+    <div className='mt-6'>
+      <p className='text-xs font-medium tracking-widest text-gray-500 uppercase mb-3'>Team overview</p>
+      <div className='bg-[#1c1c1c] rounded-xl border border-[#2a2a2a] overflow-hidden'>
+
+        {/* Header row */}
+        <div className='flex items-center px-5 py-3 bg-[#161616] border-b border-[#2a2a2a]'>
+          <span className='flex-[2] text-xs font-medium tracking-widest text-gray-500 uppercase'>Employee</span>
+          <span className='flex-1 text-center text-xs font-medium tracking-widest text-gray-500 uppercase'>New</span>
+          <span className='flex-1 text-center text-xs font-medium tracking-widest text-gray-500 uppercase'>Active</span>
+          <span className='flex-1 text-center text-xs font-medium tracking-widest text-gray-500 uppercase'>Completed</span>
+          <span className='flex-1 text-center text-xs font-medium tracking-widest text-gray-500 uppercase'>Failed</span>
         </div>
-        <div className=''>
-        {userData.map(function(elem,idx){
-            return <div key={idx} className='border-2 border-emerald-500 mb-2 py-2 px-4 flex justify-between rounded'>
-            <h2 className='text-lg font-medium  w-1/5'>{elem.firstName}</h2>
-            <h3 className='text-lg font-medium w-1/5 text-blue-400'>{elem.taskCounts.newTask}</h3>
-            <h5 className='text-lg font-medium w-1/5 text-yellow-400'>{elem.taskCounts.active}</h5>
-            <h5 className='text-lg font-medium w-1/5 text-white'>{elem.taskCounts.completed}</h5>
-            <h5 className='text-lg font-medium w-1/5 text-red-600'>{elem.taskCounts.failed}</h5>
-        </div>
-        })}
-        </div>
-        
-        
+
+        {/* Rows */}
+        {userData.map((emp, idx) => (
+          <div
+            key={idx}
+            className='flex items-center px-5 py-3.5 border-b border-[#222] last:border-0 hover:bg-[#222] transition-colors'
+          >
+            <div className='flex-[2] flex items-center gap-3'>
+              <div className={`w-8 h-8 rounded-full ${bgColors[idx % 4]} border ${borderColors[idx % 4]} ${textColors[idx % 4]} flex items-center justify-center text-xs font-medium flex-shrink-0`}>
+                {emp.firstName.slice(0, 2).toUpperCase()}
+              </div>
+              <span className='text-sm font-medium text-white'>{emp.firstName}</span>
+            </div>
+            <div className='flex-1 flex justify-center'>
+              <span className='text-xs font-medium px-3 py-1 rounded-full bg-blue-950 text-blue-300 min-w-[36px] text-center'>
+                {emp.taskCounts.newTask}
+              </span>
+            </div>
+            <div className='flex-1 flex justify-center'>
+              <span className='text-xs font-medium px-3 py-1 rounded-full bg-amber-950 text-amber-300 min-w-[36px] text-center'>
+                {emp.taskCounts.active}
+              </span>
+            </div>
+            <div className='flex-1 flex justify-center'>
+              <span className='text-xs font-medium px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 min-w-[36px] text-center'>
+                {emp.taskCounts.completed}
+              </span>
+            </div>
+            <div className='flex-1 flex justify-center'>
+              <span className='text-xs font-medium px-3 py-1 rounded-full bg-red-950 text-red-400 min-w-[36px] text-center'>
+                {emp.taskCounts.failed}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
