@@ -1,15 +1,18 @@
-import React from 'react'
+import { useContext } from 'react'
+import { AuthContext } from '../../context/AuthProvider'
 
-const Header = (props) => {
-  const logOutUser = () => {
-    localStorage.setItem('loggedInUser', '')
-    props.changeUser('')
+const Header = () => {
+  const { currentUser, logout } = useContext(AuthContext)
+
+  const logOutUser = async () => {
+    await logout()
   }
 
-  const name = props.data?.firstName || 'Admin'
+  const name = currentUser?.name || 'Admin'
   const initials = name.slice(0, 2).toUpperCase()
 
   return (
+    // ... rest of JSX stays exactly the same, just remove props.data and props.changeUser
     <div className='flex items-center justify-between py-5 px-1'>
       <div className='flex items-center gap-3.5'>
         <div className='w-11 h-11 rounded-full bg-[#1a3a2a] border border-[#0F6E56] flex items-center justify-center text-emerald-400 text-sm font-medium flex-shrink-0'>

@@ -1,0 +1,43 @@
+import React, { createContext, useState, useEffect } from 'react'
+import api from '../utils/api'
+
+export const AuthContext = createContext()
+
+const AuthProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  // Check if user is already logged in on page load
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data } = await api.get('/auth/me')
+        setCurrentUser(data)
+      } catch {
+        setCurrentUser(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    checkAuth()
+  }, [])
+
+  const login = async (email, password) => {
+    const { data } = await api.post('/auth/login', { email, password })
+    setCurrentUser(data)
+    return data
+  }
+
+  const logout = async () => {
+    await api.post('/auth/logout')
+    setCurrentUser(null)
+  }
+
+  return (
+    <AuthContext.Provider value={{ currentUser, setCurrentUser, login, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+export default AuthProvider

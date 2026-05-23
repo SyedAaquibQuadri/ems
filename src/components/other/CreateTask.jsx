@@ -1,36 +1,35 @@
-import React, { useContext, useState } from 'react'
-import { AuthContext } from '../../context/AuthProvider'
+import React, { useState } from 'react'
+import api from '../../utils/api'
 
-const CreateTask = () => {
-  const [userData, setUserData] = useContext(AuthContext)
+const CreateTask = ({ employees, onTaskCreated }) => {
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDescription, setTaskDescription] = useState('')
   const [taskDate, setTaskDate] = useState('')
-  const [asignTo, setAsignTo] = useState('')
-  const [category, setCategory] = useState('')
+  const [assignedTo, setAssignedTo] = useState('')
+  const [priority, setPriority] = useState('medium')
 
   const inputClass = 'w-full bg-[#111] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-700 outline-none focus:border-emerald-700 transition-colors'
   const labelClass = 'block text-xs font-medium text-gray-500 mb-1.5'
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault()
-    if (!taskTitle || !taskDescription || !taskDate || !asignTo || !category) {
-      alert('Please fill all fields')
+    if (!taskTitle || !taskDescription || !assignedTo) {
+      alert('Please fill all required fields')
       return
     }
-    const newTask = { taskTitle, taskDescription, taskDate, category, active: false, newTask: true, failed: false, completed: false }
-    const data = userData.map((emp) => {
-      if (asignTo === emp.firstName) {
-        return {
-          ...emp,
-          tasks: [...emp.tasks, newTask],
-          taskCounts: { ...emp.taskCounts, newTask: emp.taskCounts.newTask + 1 }
-        }
-      }
-      return emp
-    })
-    setUserData(data)
-    setTaskTitle(''); setCategory(''); setAsignTo(''); setTaskDate(''); setTaskDescription('')
+    try {
+      await api.post('/tasks', {
+        title: taskTitle,
+        description: taskDescription,
+        assignedTo,
+        priority,
+        deadline: taskDate || undefined,
+      })
+      setTaskTitle(''); setTaskDescription(''); setTaskDate(''); setAssignedTo(''); setPriority('medium')
+      onTaskCreated() // refresh task list
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to create task')
+    }
   }
 
   return (
@@ -38,8 +37,6 @@ const CreateTask = () => {
       <p className='text-xs font-medium tracking-widest text-gray-500 uppercase mb-3'>Create a task</p>
       <div className='bg-[#1c1c1c] rounded-xl border border-[#2a2a2a] p-5'>
         <form onSubmit={submitHandler} className='flex gap-6'>
-
-          {/* Left fields */}
           <div className='flex-1 grid grid-cols-2 gap-x-4 gap-y-4 content-start'>
             <div className='col-span-2'>
               <label className={labelClass}>Task title</label>
@@ -52,18 +49,23 @@ const CreateTask = () => {
                 className={inputClass} type='date' />
             </div>
             <div>
-              <label className={labelClass}>Category</label>
-              <input value={category} onChange={e => setCategory(e.target.value)}
-                className={inputClass} type='text' placeholder='design, dev…' />
+              <label className={labelClass}>Priority</label>
+              <select value={priority} onChange={e => setPriority(e.target.value)} className={inputClass}>
+                <option value='low'>Low</option>
+                <option value='medium'>Medium</option>
+                <option value='high'>High</option>
+              </select>
             </div>
             <div className='col-span-2'>
               <label className={labelClass}>Assign to</label>
-              <input value={asignTo} onChange={e => setAsignTo(e.target.value)}
-                className={inputClass} type='text' placeholder='Employee name' />
+              <select value={assignedTo} onChange={e => setAssignedTo(e.target.value)} className={inputClass}>
+                <option value=''>Select employee</option>
+                {employees.map(emp => (
+                  <option key={emp._id} value={emp._id}>{emp.name}</option>
+                ))}
+              </select>
             </div>
           </div>
-
-          {/* Right: description + button */}
           <div className='w-56 flex flex-col gap-4'>
             <div className='flex-1 flex flex-col'>
               <label className={labelClass}>Description</label>
@@ -79,7 +81,6 @@ const CreateTask = () => {
               Create task
             </button>
           </div>
-
         </form>
       </div>
     </div>

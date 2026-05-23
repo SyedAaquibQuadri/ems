@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "vite",
     "dev:server": "npm run dev --prefix server",
-    "dev:all": "concurrently \"npm run dev\" \"npm run dev:server\"",
+    "dev:client": "vite",
+    "dev:all": "concurrently \"vite\" \"npm run dev --prefix server\"",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
+    "axios": "^1.16.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "tailwindcss": "^4.3.0"

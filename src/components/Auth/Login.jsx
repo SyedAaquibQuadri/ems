@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
+import { useContext } from 'react'
+import { AuthContext } from '../../context/AuthProvider'
 
-const Login = ( { handleLogin } ) => {
+const Login = () => {
 
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
@@ -20,7 +22,9 @@ const Login = ( { handleLogin } ) => {
   const strengthColors = ['', '#ef4444', '#f97316', '#eab308', '#22c55e']
   const strength = getStrength(password)
 
-  const submitHandler = async (e) => {
+const { login } = useContext(AuthContext)
+
+const submitHandler = async (e) => {
   e.preventDefault()
   if (!email || !password) {
     setToast({ type: 'error', msg: 'Please fill in all fields.' })
@@ -28,11 +32,13 @@ const Login = ( { handleLogin } ) => {
   }
   setLoading(true)
   setToast(null)
-  await new Promise(r => setTimeout(r, 1500))
-  setLoading(false)
-
-  // ✅ Actually call handleLogin from App.jsx
-  handleLogin(email, password)
+  try {
+    await login(email, password)
+  } catch (err) {
+    setToast({ type: 'error', msg: err.response?.data?.message || 'Invalid credentials' })
+  } finally {
+    setLoading(false)
+  }
 }
 
   return (

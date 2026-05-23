@@ -55,10 +55,8 @@ const cards = [
   },
 ]
 
-const TaskListNumbers = ({ data }) => {
-  if (!data?.taskCounts) return (
-    <div className='text-gray-500 text-sm mt-8'>Loading task data...</div>
-  )
+const TaskListNumbers = ({ summary }) => {
+  if (!summary) return <div className='text-gray-500 text-sm mt-8'>Loading task data...</div>
 
   return (
     <div className='grid grid-cols-4 gap-3 mt-6'>
@@ -68,7 +66,7 @@ const TaskListNumbers = ({ data }) => {
           <div className={`w-9 h-9 rounded-lg ${iconBg} ${iconColor} flex items-center justify-center mb-4`}>
             {icon}
           </div>
-          <p className={`text-3xl font-semibold ${numColor}`}>{data.taskCounts[key]}</p>
+          <p className={`text-3xl font-semibold ${numColor}`}>{summary[key] ?? 0}</p>
           <p className='text-sm text-gray-500 mt-1'>{label}</p>
         </div>
       ))}
