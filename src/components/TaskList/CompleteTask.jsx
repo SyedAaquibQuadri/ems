@@ -1,20 +1,40 @@
 import React from 'react'
 
-const CompleteTask = ({data}) => {
+const CompleteTask = ({ data }) => {
   return (
-    <div className='flex-shrink-0 h-full w-[300px] p-5 bg-blue-400 rounded-xl'>
-            <div className='flex justify-between items-center'>
-                <h3 className='bg-red-600 text-sm px-3 py-1 rounded'>{data.category}</h3>
-                <h4 className='text-sm'>{data.taskDate}</h4>
-            </div>
-            <h2 className='mt-5 text-2xl font-semibold'>{data.taskTitle}</h2>
-            <p className='text-sm mt-2'>
-                {data.taskDescription}
-            </p>
-            <div className='mt-6'>
-                <button className='w-full bg-green-600 rounded font-medium py-1 px-2 text-xs'>Complete</button>
-            </div>
+    <div className='flex-shrink-0 w-[300px] bg-[#1c1c1c] border border-emerald-900/40 rounded-2xl p-5 flex flex-col gap-4 opacity-80'>
+      {/* Header */}
+      <div className='flex items-center justify-between'>
+        <span className='text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800'>
+          Completed
+        </span>
+        <span className='text-xs text-gray-600'>
+          {data.deadline ? new Date(data.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'No deadline'}
+        </span>
+      </div>
+
+      {/* Progress bar — full */}
+      <div className='w-full h-[2px] rounded-full bg-emerald-500' />
+
+      {/* Content */}
+      <div className='flex-1'>
+        <h2 className='text-gray-400 font-semibold text-base leading-snug mb-2 line-through decoration-gray-600'>{data.title}</h2>
+        <p className='text-gray-600 text-sm leading-relaxed line-clamp-3'>{data.description}</p>
+      </div>
+
+      {/* Footer */}
+      <div className='flex items-center justify-between pt-2 border-t border-[#2a2a2a]'>
+        <span className='text-xs text-gray-600'>
+          {data.priority?.charAt(0).toUpperCase() + data.priority?.slice(1)} priority
+        </span>
+        <div className='flex items-center gap-1.5 text-xs text-emerald-500'>
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Done
         </div>
+      </div>
+    </div>
   )
 }
 

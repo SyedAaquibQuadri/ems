@@ -1,20 +1,40 @@
 import React from 'react'
 
-const FailedTask = ({data}) => {
+const FailedTask = ({ data }) => {
   return (
-    <div className='flex-shrink-0 h-full w-[300px] p-5 bg-yellow-400 rounded-xl'>
-            <div className='flex justify-between items-center'>
-                <h3 className='bg-red-600 text-sm px-3 py-1 rounded'>{data.category}</h3>
-                <h4 className='text-sm'>{data.taskDate}</h4>
-            </div>
-            <h2 className='mt-5 text-2xl font-semibold'>{data.taskTitle}</h2>
-            <p className='text-sm mt-2'>
-                {data.taskDescription}
-            </p>
-            <div className='mt-6'>
-                <button className='w-full bg-red-500 rounded font-medium py-1 px-2 text-xs'>Failed</button>
-            </div>
+    <div className='flex-shrink-0 w-[300px] bg-[#1c1c1c] border border-red-900/40 rounded-2xl p-5 flex flex-col gap-4 opacity-80'>
+      {/* Header */}
+      <div className='flex items-center justify-between'>
+        <span className='text-xs font-medium px-2.5 py-1 rounded-full bg-red-950 text-red-400 border border-red-900'>
+          Failed
+        </span>
+        <span className='text-xs text-gray-600'>
+          {data.deadline ? new Date(data.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'No deadline'}
+        </span>
+      </div>
+
+      {/* Progress bar — red */}
+      <div className='w-full h-[2px] rounded-full bg-red-800' />
+
+      {/* Content */}
+      <div className='flex-1'>
+        <h2 className='text-gray-500 font-semibold text-base leading-snug mb-2'>{data.title}</h2>
+        <p className='text-gray-600 text-sm leading-relaxed line-clamp-3'>{data.description}</p>
+      </div>
+
+      {/* Footer */}
+      <div className='flex items-center justify-between pt-2 border-t border-[#2a2a2a]'>
+        <span className='text-xs text-gray-600'>
+          {data.priority?.charAt(0).toUpperCase() + data.priority?.slice(1)} priority
+        </span>
+        <div className='flex items-center gap-1.5 text-xs text-red-500'>
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Failed
         </div>
+      </div>
+    </div>
   )
 }
 

@@ -1,9 +1,17 @@
-import express from 'express';
-import { getEmployees } from '../controllers/userController.js';
-import { protect, adminOnly } from '../middleware/authMiddleware.js';
+import express from 'express'
+import {
+  getEmployees,
+  getAllUsers,
+  updateUserRole,
+  deleteUser,
+} from '../controllers/userController.js'
+import { protect, adminOnly } from '../middleware/authMiddleware.js'
 
-const router = express.Router();
+const router = express.Router()
 
-router.get('/employees', protect, adminOnly, getEmployees);
+router.get('/',                protect, adminOnly, getAllUsers)
+router.get('/employees',       protect, adminOnly, getEmployees)
+router.patch('/:id/role',      protect, adminOnly, updateUserRole)
+router.delete('/:id',          protect, adminOnly, deleteUser)
 
-export default router;
+export default router

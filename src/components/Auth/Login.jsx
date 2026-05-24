@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useContext } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
 
-const Login = () => {
+const Login = ({ onSwitchToRegister }) => {
 
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
@@ -130,8 +130,12 @@ const submitHandler = async (e) => {
         </button>
 
         <p className='text-center text-gray-600 text-sm mt-5'>
-          Don't have an account? <a href='#' className='text-emerald-500 hover:text-emerald-400 transition-colors'>Sign up</a>
-        </p>
+          Don't have an account?{' '}
+          <button onClick={onSwitchToRegister}
+            className='text-emerald-500 hover:text-emerald-400 transition-colors'>
+            Sign up
+          </button>
+      </p>
       </div>
     </div>
   )
