@@ -17,7 +17,6 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
       minlength: 6,
     },
     role: {
@@ -25,17 +24,23 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'employee'],
       default: 'employee',
     },
+    googleId: {
+      type: String,
+      sparse: true,
+    },
+    avatar: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
 
-// Hash password before saving
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
-  this.password = await bcrypt.hash(this.password, 10);
+  if (this.password && this.password.startsWith('$2')) return;
+  if (this.password) this.password = await bcrypt.hash(this.password, 10);
 });
 
-// Compare password method
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
