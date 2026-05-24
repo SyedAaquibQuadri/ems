@@ -10,16 +10,21 @@ const EmployeeDashboard = () => {
   const [loading, setLoading] = useState(true)
 
   const fetchTasks = async () => {
-    try {
-      const { data } = await api.get('/tasks/my')
-      setTasks(data.tasks)
-      setSummary(data.summary)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
+  try {
+    const { data } = await api.get('/tasks/my')
+    setTasks(data.tasks)
+    setSummary({
+      newTask: data.summary.new,       // ← map 'new' → 'newTask'
+      active: data.summary.active,
+      completed: data.summary.completed,
+      failed: data.summary.failed,
+    })
+  } catch (err) {
+    console.error(err)
+  } finally {
+    setLoading(false)
   }
+}
 
   useEffect(() => { fetchTasks() }, [])
 
