@@ -2,7 +2,7 @@ import React from 'react'
 
 const NewTask = ({ data, onStatusUpdate }) => {
   return (
-    <div className='flex-shrink-0 w-[300px] bg-[#1c1c1c] border border-[#2a2a2a] rounded-2xl p-5 flex flex-col gap-4 hover:border-[#3a3a3a] transition-all'>
+    <div className='flex-shrink-0 w-[280px] md:w-[300px] bg-[#1c1c1c] border border-amber-900/40 rounded-2xl p-5 flex flex-col gap-4 hover:border-amber-800/60 transition-all'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <span className='text-xs font-medium px-2.5 py-1 rounded-full bg-blue-950 text-blue-300 border border-blue-800'>

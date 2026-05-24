@@ -59,7 +59,7 @@ const TaskListNumbers = ({ summary }) => {
   if (!summary) return <div className='text-gray-500 text-sm mt-8'>Loading task data...</div>
 
   return (
-    <div className='grid grid-cols-4 gap-3 mt-6'>
+    <div className='grid grid-cols-2 md:grid-cols-4 gap-3 mt-6'>
       {cards.map(({ key, label, colorBar, iconBg, iconColor, numColor, icon }) => (
         <div key={key} className='relative bg-[#1c1c1c] rounded-xl border border-[#2a2a2a] p-5 overflow-hidden'>
           <div className={`absolute top-0 left-0 right-0 h-[3px] ${colorBar} rounded-t-xl`} />

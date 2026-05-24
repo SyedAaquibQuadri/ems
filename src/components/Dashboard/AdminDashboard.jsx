@@ -33,7 +33,7 @@ const AdminDashboard = () => {
   )
 
   return (
-    <div className='h-screen w-full p-7 bg-[#0f0f0f]'>
+    <div className='min-h-screen w-full p-4 md:p-7 bg-[#0f0f0f] overflow-y-auto'>
       <Header />
       <CreateTask employees={employees} onTaskCreated={fetchData} />
       <AllTask tasks={tasks} />

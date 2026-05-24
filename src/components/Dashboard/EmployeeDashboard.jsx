@@ -44,7 +44,7 @@ const EmployeeDashboard = () => {
   )
 
   return (
-    <div className='p-10 bg-[#1C1C1C] h-screen'>
+    <div className='p-4 md:p-10 bg-[#1C1C1C] min-h-screen overflow-y-auto'>
       <Header />
       <TaskListNumbers summary={summary} />
       <TaskList tasks={tasks} onStatusUpdate={handleStatusUpdate} />

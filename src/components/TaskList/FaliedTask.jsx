@@ -2,7 +2,7 @@ import React from 'react'
 
 const FailedTask = ({ data }) => {
   return (
-    <div className='flex-shrink-0 w-[300px] bg-[#1c1c1c] border border-red-900/40 rounded-2xl p-5 flex flex-col gap-4 opacity-80'>
+   <div className='flex-shrink-0 w-[280px] md:w-[300px] bg-[#1c1c1c] border border-amber-900/40 rounded-2xl p-5 flex flex-col gap-4 hover:border-amber-800/60 transition-all'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <span className='text-xs font-medium px-2.5 py-1 rounded-full bg-red-950 text-red-400 border border-red-900'>

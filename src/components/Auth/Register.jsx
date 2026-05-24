@@ -63,8 +63,9 @@ const Register = ({ onSwitchToLogin }) => {
   }
 
   return (
-    <div className='flex h-screen w-screen items-center justify-center bg-[#0f0f0f]'>
-      <div className='bg-[#181818] border border-[#2a2a2a] rounded-2xl p-10 w-full max-w-sm'>
+     <div className='flex min-h-screen w-screen items-center justify-center bg-[#0f0f0f] px-4 py-8'>
+      <div className='bg-[#181818] border border-[#2a2a2a] rounded-2xl p-7 w-full max-w-sm'>
+
 
         {/* Icon */}
         <div className='w-11 h-11 rounded-xl bg-emerald-600 flex items-center justify-center mx-auto mb-5'>
