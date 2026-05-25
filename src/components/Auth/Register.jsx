@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
+import api from '../../utils/api'
 
 const Register = ({ onSwitchToLogin }) => {
   const { login } = useContext(AuthContext)
@@ -26,41 +27,32 @@ const Register = ({ onSwitchToLogin }) => {
   const wrapClass = 'flex items-center gap-2 bg-[#111] border border-[#2a2a2a] rounded-xl px-3 focus-within:border-emerald-600 transition-colors'
 
   const submitHandler = async (e) => {
-    e.preventDefault()
-    if (!name || !email || !password || !confirm) {
-      setToast({ type: 'error', msg: 'Please fill in all fields.' })
-      return
-    }
-    if (password !== confirm) {
-      setToast({ type: 'error', msg: 'Passwords do not match.' })
-      return
-    }
-    if (strength < 2) {
-      setToast({ type: 'error', msg: 'Password is too weak.' })
-      return
-    }
-
-    setLoading(true)
-    setToast(null)
-
-    try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ name, email, password }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message)
-
-      // Auto login after register
-      await login(email, password)
-    } catch (err) {
-      setToast({ type: 'error', msg: err.message || 'Registration failed' })
-    } finally {
-      setLoading(false)
-    }
+  e.preventDefault()
+  if (!name || !email || !password || !confirm) {
+    setToast({ type: 'error', msg: 'Please fill in all fields.' })
+    return
   }
+  if (password !== confirm) {
+    setToast({ type: 'error', msg: 'Passwords do not match.' })
+    return
+  }
+  if (strength < 2) {
+    setToast({ type: 'error', msg: 'Password is too weak.' })
+    return
+  }
+
+  setLoading(true)
+  setToast(null)
+
+  try {
+    await api.post('/auth/register', { name, email, password })
+    await login(email, password)
+  } catch (err) {
+    setToast({ type: 'error', msg: err.response?.data?.message || 'Registration failed' })
+  } finally {
+    setLoading(false)
+  }
+}
 
   return (
      <div className='flex min-h-screen w-screen items-center justify-center bg-[#0f0f0f] px-4 py-8'>
