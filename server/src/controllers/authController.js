@@ -11,9 +11,13 @@ export const loginUser = async (req, res) => {
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
-    generateToken(res, user._id)
 
-    // Also return token in body for cross-domain
+    // Block pending users from logging in
+    if (user.role === 'pending') {
+      return res.status(403).json({ message: 'Your account is pending approval from admin.' })
+    }
+
+    generateToken(res, user._id)
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' })
 
     res.json({
@@ -21,7 +25,7 @@ export const loginUser = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      token, // ← add this
+      token,
     })
   } catch (error) {
     res.status(500).json({ message: error.message })

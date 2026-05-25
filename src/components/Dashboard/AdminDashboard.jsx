@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Header from '../other/Header'
 import CreateTask from '../other/CreateTask'
 import AllTask from '../other/AllTask'
+import PendingUsers from '../other/PendingUsers'
 import api from '../../utils/api'
 
 const AdminDashboard = () => {
@@ -35,6 +36,7 @@ const AdminDashboard = () => {
   return (
     <div className='min-h-screen w-full p-4 md:p-7 bg-[#0f0f0f] overflow-y-auto'>
       <Header />
+      <PendingUsers onApproved={fetchData} />
       <CreateTask employees={employees} onTaskCreated={fetchData} />
       <AllTask tasks={tasks} />
     </div>
