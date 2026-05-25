@@ -43,7 +43,7 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Email already registered' })
     }
 
-    const user = await User.create({ name, email, password, role: 'employee' })
+    const user = await User.create({ name, email, password, role: 'pending' })
 
     generateToken(res, user._id)
 
