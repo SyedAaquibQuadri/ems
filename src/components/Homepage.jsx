@@ -126,7 +126,7 @@ const Homepage = () => {
               <h3 className='text-xl font-semibold text-white mb-1'>Syed Aaquib Quadri</h3>
               <p className='text-emerald-400 text-sm mb-4'>Full Stack Developer</p>
               <p className='text-gray-400 text-sm leading-relaxed'>
-                Passionate about building real-world applications that solve actual problems. I created EMS as a personal project to learn and demonstrate full-stack development with the MERN stack.
+                A collage student who wants to understand the software development. I created EMS as a personal project to learn and demonstrate full-stack development with the MERN stack.
               </p>
               <div className='flex items-center gap-3 mt-6'>
                 <a href='https://github.com/SyedAaquibQuadri' target='_blank' rel='noreferrer'
