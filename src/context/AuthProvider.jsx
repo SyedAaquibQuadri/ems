@@ -8,25 +8,36 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   // Check if user is already logged in on page load
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data } = await api.get('/auth/me')
-        setCurrentUser(data)
-      } catch {
-        setCurrentUser(null)
-      } finally {
-        setLoading(false)
-      }
-    }
-    checkAuth()
-  }, [])
+  jsxuseEffect(() => {
+  const checkAuth = async () => {
+    try {
+      // Check for Google OAuth token in URL
+      const params = new URLSearchParams(window.location.search)
+      const token = params.get('token')
 
-  const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password })
-    setCurrentUser(data)
-    return data
+      if (token) {
+        // Store token in localStorage for cross-domain use
+        localStorage.setItem('authToken', token)
+        // Clean URL
+        window.history.replaceState({}, '', '/')
+      }
+
+      const { data } = await api.get('/auth/me')
+      setCurrentUser(data)
+    } catch {
+      setCurrentUser(null)
+    } finally {
+      setLoading(false)
+    }
   }
+  checkAuth()
+}, [])
+
+  const logout = async () => {
+  await api.post('/auth/logout')
+  localStorage.removeItem('authToken')
+  setCurrentUser(null)
+}
 
   const logout = async () => {
     await api.post('/auth/logout')
