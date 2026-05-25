@@ -303,12 +303,6 @@ new ──► active ──► completed
 
 ---
 
-## License
-
-This project is licensed under the ISC License.
-
----
-
 <div align="center">
   Built with ❤️ by <a href="https://github.com/SyedAaquibQuadri">Syed Aaquib Quadri</a>
 </div>
