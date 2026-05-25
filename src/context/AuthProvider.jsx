@@ -7,38 +7,39 @@ const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Check if user is already logged in on page load
-  jsxuseEffect(() => {
-  const checkAuth = async () => {
-    try {
-      // Check for Google OAuth token in URL
-      const params = new URLSearchParams(window.location.search)
-      const token = params.get('token')
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get('token')
 
-      if (token) {
-        // Store token in localStorage for cross-domain use
-        localStorage.setItem('authToken', token)
-        // Clean URL
-        window.history.replaceState({}, '', '/')
+        if (token) {
+          localStorage.setItem('authToken', token)
+          window.history.replaceState({}, '', '/')
+        }
+
+        const { data } = await api.get('/auth/me')
+        setCurrentUser(data)
+      } catch {
+        setCurrentUser(null)
+      } finally {
+        setLoading(false)
       }
-
-      const { data } = await api.get('/auth/me')
-      setCurrentUser(data)
-    } catch {
-      setCurrentUser(null)
-    } finally {
-      setLoading(false)
     }
+    checkAuth()
+  }, [])
+
+  const login = async (email, password) => {
+    const { data } = await api.post('/auth/login', { email, password })
+    setCurrentUser(data)
+    return data
   }
-  checkAuth()
-}, [])
 
   const logout = async () => {
-  await api.post('/auth/logout')
-  localStorage.removeItem('authToken')
-  setCurrentUser(null)
-}
-
+    await api.post('/auth/logout')
+    localStorage.removeItem('authToken')
+    setCurrentUser(null)
+  }
 
   return (
     <AuthContext.Provider value={{ currentUser, setCurrentUser, login, logout, loading }}>
