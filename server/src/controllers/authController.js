@@ -1,30 +1,32 @@
 import User from '../models/User.js';
 import generateToken from '../utils/generateToken.js';
+import jwt from 'jsonwebtoken';
 
 // @desc    Login user
 // @route   POST /api/auth/login
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
+  const { email, password } = req.body
   try {
-    const user = await User.findOne({ email });
-
+    const user = await User.findOne({ email })
     if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' })
     }
+    generateToken(res, user._id)
 
-    generateToken(res, user._id);
+    // Also return token in body for cross-domain
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' })
 
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
-    });
+      token, // ← add this
+    })
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message })
   }
-};
+}
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -41,12 +43,14 @@ export const registerUser = async (req, res) => {
 
     generateToken(res, user._id)
 
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    })
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' })
+res.status(201).json({
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  token, // ← add this
+})
   } catch (error) {
     res.status(500).json({ message: error.message })
   }

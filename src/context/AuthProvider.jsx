@@ -27,11 +27,14 @@ const AuthProvider = ({ children }) => {
     checkAuth()
   }, [])
 
-  const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password })
-    setCurrentUser(data)
-    return data
+ const login = async (email, password) => {
+  const { data } = await api.post('/auth/login', { email, password })
+  if (data.token) {
+    localStorage.setItem('authToken', data.token)
   }
+  setCurrentUser(data)
+  return data
+}
 
   const logout = async () => {
   try {
