@@ -5,7 +5,6 @@ const api = axios.create({
   withCredentials: true,
 })
 
-// Attach token from localStorage if available (Google OAuth cross-domain)
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('authToken')
   if (token) {
