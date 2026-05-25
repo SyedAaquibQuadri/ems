@@ -39,10 +39,6 @@ const AuthProvider = ({ children }) => {
   setCurrentUser(null)
 }
 
-  const logout = async () => {
-    await api.post('/auth/logout')
-    setCurrentUser(null)
-  }
 
   return (
     <AuthContext.Provider value={{ currentUser, setCurrentUser, login, logout, loading }}>
