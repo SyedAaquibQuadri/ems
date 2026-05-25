@@ -45,13 +45,15 @@ const Register = ({ onSwitchToLogin }) => {
   setToast(null)
 
   try {
-    await api.post('/auth/register', { name, email, password })
-    await login(email, password)
-  } catch (err) {
-    setToast({ type: 'error', msg: err.response?.data?.message || 'Registration failed' })
-  } finally {
-    setLoading(false)
-  }
+  await api.post('/auth/register', { name, email, password })
+  // Don't auto login — show success message instead
+  setToast({ type: 'success', msg: 'Account created! Wait for admin approval before logging in.' })
+  setName(''); setEmail(''); setPassword(''); setConfirm('')
+  // Switch to login after 3 seconds
+  setTimeout(() => onSwitchToLogin(), 3000)
+} catch (err) {
+  setToast({ type: 'error', msg: err.response?.data?.message || 'Registration failed' })
+}
 }
 
   return (
