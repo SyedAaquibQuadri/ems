@@ -1,10 +1,11 @@
 import React from 'react'
+import TaskTimer from './TaskTimer'
 
 const AcceptTask = ({ data, onStatusUpdate }) => {
   const priorityConfig = {
-    high:   { bar: 'w-full bg-red-500',     text: 'text-red-400',     label: 'High' },
-    medium: { bar: 'w-2/3 bg-yellow-500',   text: 'text-yellow-400',  label: 'Medium' },
-    low:    { bar: 'w-1/3 bg-emerald-500',  text: 'text-emerald-400', label: 'Low' },
+    high:   { bar: 'w-full bg-red-500',    text: 'text-red-400',    label: 'High' },
+    medium: { bar: 'w-2/3 bg-yellow-500',  text: 'text-yellow-400', label: 'Medium' },
+    low:    { bar: 'w-1/3 bg-emerald-500', text: 'text-emerald-400',label: 'Low' },
   }
   const p = priorityConfig[data.priority] || priorityConfig.medium
 
@@ -34,6 +35,12 @@ const AcceptTask = ({ data, onStatusUpdate }) => {
         <p className='text-gray-500 text-sm leading-relaxed line-clamp-3'>{data.description}</p>
       </div>
 
+      {/* Timer */}
+      <div className='flex items-center justify-between'>
+        <TaskTimer acceptedAt={data.acceptedAt} stopped={false} />
+        <span className={`text-xs font-medium ${p.text}`}>{p.label} priority</span>
+      </div>
+
       {/* Assigned by */}
       {data.assignedBy && (
         <div className='flex items-center gap-2'>
@@ -41,7 +48,6 @@ const AcceptTask = ({ data, onStatusUpdate }) => {
             {data.assignedBy.name?.slice(0, 1).toUpperCase()}
           </div>
           <span className='text-xs text-gray-600'>by {data.assignedBy.name}</span>
-          <span className={`ml-auto text-xs font-medium ${p.text}`}>{p.label} priority</span>
         </div>
       )}
 

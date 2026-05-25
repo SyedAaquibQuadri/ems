@@ -67,31 +67,41 @@ export const getMyTasks = async (req, res) => {
 // @desc    Update task status (employee only)
 // @route   PATCH /api/tasks/:id/status
 export const updateTaskStatus = async (req, res) => {
-  const { status } = req.body;
-  const allowedStatuses = ['new', 'active', 'completed', 'failed'];
+  const { status } = req.body
+  const allowedStatuses = ['new', 'active', 'completed', 'failed']
 
   if (!allowedStatuses.includes(status)) {
-    return res.status(400).json({ message: 'Invalid status value' });
+    return res.status(400).json({ message: 'Invalid status value' })
   }
 
   try {
     const task = await Task.findOne({
       _id: req.params.id,
       assignedTo: req.user._id,
-    });
+    })
 
     if (!task) {
-      return res.status(404).json({ message: 'Task not found or not assigned to you' });
+      return res.status(404).json({ message: 'Task not found or not assigned to you' })
     }
 
-    task.status = status;
-    await task.save();
+    task.status = status
 
-    res.json(task);
+    // Set acceptedAt when task becomes active
+    if (status === 'active' && !task.acceptedAt) {
+      task.acceptedAt = new Date()
+    }
+
+    // Clear acceptedAt when task is completed or failed
+    if (status === 'completed' || status === 'failed') {
+      task.completedAt = new Date()
+    }
+
+    await task.save()
+    res.json(task)
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message })
   }
-};
+}
 
 // @desc    Update task details (admin only)
 // @route   PUT /api/tasks/:id

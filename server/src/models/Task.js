@@ -34,6 +34,14 @@ const taskSchema = new mongoose.Schema(
     deadline: {
       type: Date,
     },
+    acceptedAt: {
+      type: Date,
+      default: null,
+  },
+    completedAt: {
+    type: Date,
+    default: null,
+},
   },
   { timestamps: true }
 );
