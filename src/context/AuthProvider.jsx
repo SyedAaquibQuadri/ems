@@ -34,10 +34,14 @@ const AuthProvider = ({ children }) => {
   }
 
   const logout = async () => {
+  try {
     await api.post('/auth/logout')
-    localStorage.removeItem('authToken')
-    setCurrentUser(null)
+  } catch {
+    // ignore errors — just clear local state
   }
+  localStorage.removeItem('authToken')
+  setCurrentUser(null)
+}
 
   return (
     <AuthContext.Provider value={{ currentUser, setCurrentUser, login, logout, loading }}>

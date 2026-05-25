@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/me', protect, getMe);
-router.post('/logout', protect, logoutUser);
+router.post('/logout', logoutUser);
 
 router.get('/google',
   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
