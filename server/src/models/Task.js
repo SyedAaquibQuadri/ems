@@ -42,6 +42,11 @@ const taskSchema = new mongoose.Schema(
     type: Date,
     default: null,
 },
+    organizationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organization',
+    required: true,
+},
   },
   { timestamps: true }
 );

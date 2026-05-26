@@ -4,19 +4,37 @@ import User from '../models/User.js';
 // @route   GET /api/users/employees
 export const getEmployees = async (req, res) => {
   try {
-    const employees = await User.find({ role: 'employee' }).select('-password');
-    res.json(employees);
+    const employees = await User.find({
+      role: 'employee',
+      organizationId: req.user.organizationId,
+    }).select('-password')
+    res.json(employees)
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message })
   }
-};
-
+}
 
 // @desc    Get all users (admin only)
 // @route   GET /api/users
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 })
+    const users = await User.find({
+      organizationId: req.user.organizationId,
+    }).select('-password').sort({ createdAt: -1 })
+    res.json(users)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+// @desc    Get all pending users (admin only)
+// @route   GET /api/users/pending
+export const getPendingUsers = async (req, res) => {
+  try {
+    const users = await User.find({
+      role: 'pending',
+      organizationId: req.user.organizationId,
+    }).select('-password').sort({ createdAt: -1 })
     res.json(users)
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -27,7 +45,7 @@ export const getAllUsers = async (req, res) => {
 // @route   PATCH /api/users/:id/role
 export const updateUserRole = async (req, res) => {
   const { role } = req.body
-  if (!['admin', 'employee'].includes(role)) {
+  if (!['org_admin', 'employee', 'pending'].includes(role)) {
     return res.status(400).json({ message: 'Invalid role' })
   }
   try {
@@ -51,17 +69,6 @@ export const deleteUser = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' })
     await user.deleteOne()
     res.json({ message: 'User deleted successfully' })
-  } catch (error) {
-    res.status(500).json({ message: error.message })
-  }
-}
-
-// @desc    Get all pending users (admin only)
-// @route   GET /api/users/pending
-export const getPendingUsers = async (req, res) => {
-  try {
-    const users = await User.find({ role: 'pending' }).select('-password').sort({ createdAt: -1 })
-    res.json(users)
   } catch (error) {
     res.status(500).json({ message: error.message })
   }

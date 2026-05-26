@@ -19,9 +19,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       minlength: 6,
     },
+    organizationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Organization',
+      default: null,
+    },
     role: {
       type: String,
-      enum: ['admin', 'employee', 'pending'],
+      enum: ['super_admin', 'org_admin', 'employee', 'pending'],
       default: 'pending',
     },
     googleId: {

@@ -5,6 +5,7 @@ import passport from './config/passport.js';
 import authRoutes from './routes/authRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import orgRoutes from './routes/orgRoutes.js';
 
 const app = express();
 
@@ -19,6 +20,8 @@ app.use(passport.initialize());
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
+
+app.use('/api/org', orgRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running' });

@@ -7,12 +7,10 @@ import jwt from 'jsonwebtoken';
 export const loginUser = async (req, res) => {
   const { email, password } = req.body
   try {
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email }).populate('organizationId', 'name slug')
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
-
-    // Block pending users from logging in
     if (user.role === 'pending') {
       return res.status(403).json({ message: 'Your account is pending approval from admin.' })
     }
@@ -25,13 +23,14 @@ export const loginUser = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      organizationId: user.organizationId?._id,
+      orgName: user.organizationId?.name,
       token,
     })
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
 }
-
 // @desc    Register new user
 // @route   POST /api/auth/register
 export const registerUser = async (req, res) => {
