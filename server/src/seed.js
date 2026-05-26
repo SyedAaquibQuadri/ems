@@ -1,4 +1,10 @@
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import Organization from './models/Organization.js';
+import User from './models/User.js';
+import Task from './models/Task.js';
+
+dotenv.config();
 
 const seed = async () => {
   await mongoose.connect(process.env.MONGO_URI);
@@ -48,3 +54,8 @@ const seed = async () => {
   console.log('Employee login: alice@ems.com / emp123')
   process.exit()
 }
+
+seed().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})
