@@ -3,7 +3,7 @@ import { AuthContext } from '../../context/AuthProvider'
 import api from '../../utils/api'
 
 const Register = ({ onSwitchToLogin }) => {
-  const { login } = useContext(AuthContext)
+  const { login, setCurrentUser } = useContext(AuthContext)
   const [mode, setMode] = useState(null) // 'create' | 'join'
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -56,12 +56,11 @@ const Register = ({ onSwitchToLogin }) => {
     setToast(null)
 
     try {
-      if (mode === 'create') {
-        // Create org + become admin → auto login
-        const { data } = await api.post('/org/register', { orgName, name, email, password })
-        if (data.token) localStorage.setItem('authToken', data.token)
-        await login(email, password)
-      } else {
+     if (mode === 'create') {
+  const { data } = await api.post('/org/register', { orgName, name, email, password })
+  if (data.token) localStorage.setItem('authToken', data.token)
+  setCurrentUser(data)
+} else {
         // Join org → pending
         await api.post('/org/join', { orgSlug, name, email, password })
         setToast({ type: 'success', msg: `Request sent! Wait for admin approval.` })

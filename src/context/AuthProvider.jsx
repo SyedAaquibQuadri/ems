@@ -27,22 +27,22 @@ const AuthProvider = ({ children }) => {
     checkAuth()
   }, [])
 
-const login = async (email, password) => {
-  const { data } = await api.post('/auth/login', { email, password })
-  if (data.token) localStorage.setItem('authToken', data.token)
-  setCurrentUser(data)
-  return data
-}
+  const login = async (email, password) => {
+    const { data } = await api.post('/auth/login', { email, password })
+    if (data.token) localStorage.setItem('authToken', data.token)
+    setCurrentUser(data)
+    return data
+  }
 
   const logout = async () => {
-  try {
-    await api.post('/auth/logout')
-  } catch {
-    // ignore errors — just clear local state
+    try {
+      await api.post('/auth/logout')
+    } catch {
+      // ignore errors
+    }
+    localStorage.removeItem('authToken')
+    setCurrentUser(null)
   }
-  localStorage.removeItem('authToken')
-  setCurrentUser(null)
-}
 
   return (
     <AuthContext.Provider value={{ currentUser, setCurrentUser, login, logout, loading }}>
