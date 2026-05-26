@@ -7,6 +7,8 @@ import AdminDashboard from './components/Dashboard/AdminDashboard'
 import Homepage from './components/Homepage'
 import { AuthContext } from './context/AuthProvider'
 
+const isAdmin = (user) => user?.role === 'admin' || user?.role === 'org_admin'
+
 const App = () => {
   const { currentUser, loading } = useContext(AuthContext)
   const [authPage, setAuthPage] = useState('login')
@@ -20,11 +22,7 @@ const App = () => {
   return (
     <Routes>
       <Route path='/' element={
-        currentUser
-          ? currentUser.role === 'admin'
-            ? <Navigate to='/dashboard' />
-            : <Navigate to='/dashboard' />
-          : <Homepage />
+        currentUser ? <Navigate to='/dashboard' /> : <Homepage />
       } />
       <Route path='/login' element={
         currentUser ? <Navigate to='/dashboard' /> :
@@ -38,7 +36,7 @@ const App = () => {
       } />
       <Route path='/dashboard' element={
         !currentUser ? <Navigate to='/login' /> :
-        currentUser.role === 'admin'
+        isAdmin(currentUser)
           ? <AdminDashboard />
           : <EmployeeDashboard />
       } />
