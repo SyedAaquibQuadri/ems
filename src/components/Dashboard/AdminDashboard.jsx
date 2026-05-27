@@ -5,6 +5,8 @@ import AllTask from '../other/AllTask'
 import PendingUsers from '../other/PendingUsers'
 import api from '../../utils/api'
 import { AuthContext } from '../../context/AuthProvider'
+import TaskAnalytics from '../other/TaskAnalytics'
+
 
 const AdminDashboard = () => {
   const { currentUser } = useContext(AuthContext)  // ← moved inside component
@@ -54,6 +56,7 @@ const AdminDashboard = () => {
       <PendingUsers onApproved={fetchData} />
       <CreateTask employees={employees} onTaskCreated={fetchData} />
       <AllTask tasks={tasks} />
+      <TaskAnalytics />
     </div>
   )
 }

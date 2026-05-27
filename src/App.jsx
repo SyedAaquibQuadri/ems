@@ -7,7 +7,10 @@ import AdminDashboard from './components/Dashboard/AdminDashboard'
 import Homepage from './components/Homepage'
 import { AuthContext } from './context/AuthProvider'
 
-const isAdmin = (user) => user?.role === 'admin' || user?.role === 'org_admin'
+const isAdmin = (user) =>
+  user?.role === 'admin' ||
+  user?.role === 'org_admin' ||
+  user?.role === 'super_admin'
 
 const App = () => {
   const { currentUser, loading } = useContext(AuthContext)

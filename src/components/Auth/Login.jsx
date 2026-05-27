@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useContext } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
 
@@ -9,6 +9,8 @@ const Login = ({ onSwitchToRegister }) => {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState(null)
+  const [showSuperAdmin, setShowSuperAdmin] = useState(false)
+  const [superAdminCode, setSuperAdminCode] = useState('')
 
   const getStrength = (val) => {
     let score = 0
@@ -33,13 +35,23 @@ const submitHandler = async (e) => {
   setLoading(true)
   setToast(null)
   try {
-    await login(email, password)
+    await login(email, password, superAdminCode || undefined)
   } catch (err) {
     setToast({ type: 'error', msg: err.response?.data?.message || 'Invalid credentials' })
   } finally {
     setLoading(false)
   }
 }
+
+useEffect(() => {
+  const handleKey = (e) => {
+    if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+      setShowSuperAdmin(prev => !prev)
+    }
+  }
+  window.addEventListener('keydown', handleKey)
+  return () => window.removeEventListener('keydown', handleKey)
+}, [])
 
   return (
     <div className='flex min-h-screen w-screen items-center justify-center bg-[#0f0f0f] px-4 py-8'>
@@ -103,6 +115,23 @@ const submitHandler = async (e) => {
           <div className='text-right -mt-2'>
             <a href='#' className='text-emerald-500 text-sm hover:text-emerald-400 transition-colors'>Forgot password?</a>
           </div>
+          {showSuperAdmin && (
+              <div>
+                <label className='text-gray-500 text-xs mb-1.5 block tracking-wide'>Super Admin Code</label>
+                <div className='flex items-center gap-2 bg-[#111] border border-yellow-800 rounded-xl px-3 focus-within:border-yellow-600 transition-colors'>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-yellow-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                  </svg>
+                  <input
+                    type='password'
+                    value={superAdminCode}
+                    onChange={e => setSuperAdminCode(e.target.value)}
+                    placeholder='Enter super admin code'
+                    className='bg-transparent outline-none text-yellow-400 text-sm py-3.5 w-full placeholder:text-gray-700'
+                  />
+                </div>
+              </div>
+            )}
 
           <button
             type='submit'

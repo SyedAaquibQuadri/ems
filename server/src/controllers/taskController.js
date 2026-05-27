@@ -152,3 +152,64 @@ export const deleteTask = async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 }
+
+
+// @desc    Get task time analytics for org (admin only)
+// @route   GET /api/tasks/analytics
+export const getTaskAnalytics = async (req, res) => {
+  try {
+    const tasks = await Task.find({
+      organizationId: req.user.organizationId,
+      status: { $in: ['completed', 'failed'] },
+      acceptedAt: { $ne: null },
+    })
+      .populate('assignedTo', 'name email')
+      .populate('assignedBy', 'name email')
+      .sort({ completedAt: -1 })
+
+    // Group by employee
+    const employeeMap = {}
+    tasks.forEach(task => {
+      const emp = task.assignedTo
+      if (!emp) return
+      if (!employeeMap[emp._id]) {
+        employeeMap[emp._id] = {
+          employee: { _id: emp._id, name: emp.name, email: emp.email },
+          totalTasks: 0,
+          completedTasks: 0,
+          failedTasks: 0,
+          totalTimeMs: 0,
+          avgTimeMs: 0,
+          tasks: [],
+        }
+      }
+      const timeMs = task.completedAt && task.acceptedAt
+        ? new Date(task.completedAt) - new Date(task.acceptedAt)
+        : 0
+
+      employeeMap[emp._id].totalTasks++
+      if (task.status === 'completed') employeeMap[emp._id].completedTasks++
+      if (task.status === 'failed') employeeMap[emp._id].failedTasks++
+      employeeMap[emp._id].totalTimeMs += timeMs
+      employeeMap[emp._id].tasks.push({
+        _id: task._id,
+        title: task.title,
+        status: task.status,
+        priority: task.priority,
+        acceptedAt: task.acceptedAt,
+        completedAt: task.completedAt,
+        timeMs,
+      })
+    })
+
+    // Calculate averages
+    const analytics = Object.values(employeeMap).map(emp => ({
+      ...emp,
+      avgTimeMs: emp.totalTasks > 0 ? Math.round(emp.totalTimeMs / emp.totalTasks) : 0,
+    }))
+
+    res.json(analytics)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}

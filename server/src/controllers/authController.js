@@ -5,14 +5,27 @@ import jwt from 'jsonwebtoken';
 // @desc    Login user
 // @route   POST /api/auth/login
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body
+  const { email, password, superAdminCode } = req.body
+
   try {
     const user = await User.findOne({ email }).populate('organizationId', 'name slug')
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
+
     if (user.role === 'pending') {
       return res.status(403).json({ message: 'Your account is pending approval from admin.' })
+    }
+
+    // Super admin upgrade
+    if (
+      superAdminCode &&
+      superAdminCode === process.env.SUPER_ADMIN_CODE &&
+      email === process.env.SUPER_ADMIN_EMAIL &&
+      user.role !== 'super_admin'
+    ) {
+      user.role = 'super_admin'
+      await user.save()
     }
 
     generateToken(res, user._id)
@@ -25,6 +38,7 @@ export const loginUser = async (req, res) => {
       role: user.role,
       organizationId: user.organizationId?._id,
       orgName: user.organizationId?.name,
+      orgSlug: user.organizationId?.slug,
       token,
     })
   } catch (error) {
