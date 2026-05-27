@@ -6,6 +6,7 @@ import EmployeeDashboard from './components/Dashboard/EmployeeDashboard'
 import AdminDashboard from './components/Dashboard/AdminDashboard'
 import Homepage from './components/Homepage'
 import { AuthContext } from './context/AuthProvider'
+import SuperAdminDashboard from './components/Dashboard/SuperAdminDashboard'
 
 const isAdmin = (user) =>
   user?.role === 'admin' ||
@@ -39,9 +40,11 @@ const App = () => {
       } />
       <Route path='/dashboard' element={
         !currentUser ? <Navigate to='/login' /> :
-        isAdmin(currentUser)
-          ? <AdminDashboard />
-          : <EmployeeDashboard />
+        currentUser.role === 'super_admin'
+          ? <SuperAdminDashboard />
+          : isAdmin(currentUser)
+            ? <AdminDashboard />
+            : <EmployeeDashboard />
       } />
     </Routes>
   )
