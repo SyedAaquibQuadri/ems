@@ -6,6 +6,7 @@ import {
   updateTaskStatus,
   updateTask,
   deleteTask,
+  getTaskAnalytics,
 } from '../controllers/taskController.js';
 import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
