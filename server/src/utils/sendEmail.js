@@ -1,34 +1,19 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async ({ to, subject, html }) => {
-  console.log('EMAIL_USER:', process.env.EMAIL_USER)
-  console.log('EMAIL_PASS length:', process.env.EMAIL_PASS?.length)
-  
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
-  })
-
-  try {
-    await transporter.verify()
-    console.log('Email server connected ✅')
-  } catch (err) {
-    console.error('Email verify error:', err.message)
-    throw new Error('Email service unavailable')
-  }
-
-  await transporter.sendMail({
-    from: `"EMS App" <${process.env.EMAIL_USER}>`,
+  const { error } = await resend.emails.send({
+    from: 'EMS App <onboarding@resend.dev>',
     to,
     subject,
     html,
   })
+
+  if (error) {
+    console.error('Resend error:', error)
+    throw new Error('Email service unavailable')
+  }
 }
 
 export default sendEmail
