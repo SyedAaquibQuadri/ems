@@ -15,7 +15,6 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@getbrevo/brevo": "^5.0.4",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.16.1",
     "react": "^19.2.6",
