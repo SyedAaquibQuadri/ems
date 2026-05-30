@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useContext } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
+import ForgotPassword from './ForgotPassword'
 
 const Login = ({ onSwitchToRegister }) => {
 
@@ -11,6 +12,7 @@ const Login = ({ onSwitchToRegister }) => {
   const [toast, setToast] = useState(null)
   const [showSuperAdmin, setShowSuperAdmin] = useState(false)
   const [superAdminCode, setSuperAdminCode] = useState('')
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
 
   const getStrength = (val) => {
     let score = 0
@@ -50,6 +52,21 @@ useEffect(() => {
     }
   }
   window.addEventListener('keydown', handleKey)
+  
+useEffect(() => {
+  const handleKey = (e) => {
+    if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+      setShowSuperAdmin(prev => !prev)
+    }
+  }
+  window.addEventListener('keydown', handleKey)
+  return () => window.removeEventListener('keydown', handleKey)
+}, [])
+
+// Add this line right before the main return statement
+if (showForgotPassword) return <ForgotPassword onBack={() => setShowForgotPassword(false)} />
+
+
   return () => window.removeEventListener('keydown', handleKey)
 }, [])
 
@@ -112,9 +129,10 @@ useEffect(() => {
             )}
           </div>
 
-          <div className='text-right -mt-2'>
-            <a href='#' className='text-emerald-500 text-sm hover:text-emerald-400 transition-colors'>Forgot password?</a>
-          </div>
+          <button type='button' onClick={() => setShowForgotPassword(true)}
+            className='text-emerald-500 text-sm hover:text-emerald-400 transition-colors'>
+            Forgot password?
+          </button>
           {showSuperAdmin && (
               <div>
                 <label className='text-gray-500 text-xs mb-1.5 block tracking-wide'>Super Admin Code</label>

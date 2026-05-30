@@ -7,6 +7,7 @@ import AdminDashboard from './components/Dashboard/AdminDashboard'
 import Homepage from './components/Homepage'
 import { AuthContext } from './context/AuthProvider'
 import SuperAdminDashboard from './components/Dashboard/SuperAdminDashboard'
+import ResetPassword from './components/Auth/ResetPassword'
 
 const isAdmin = (user) =>
   user?.role === 'admin' ||
@@ -46,6 +47,7 @@ const App = () => {
             ? <AdminDashboard />
             : <EmployeeDashboard />
       } />
+      <Route path='/reset-password/:token' element={<ResetPassword />} />
     </Routes>
   )
 }

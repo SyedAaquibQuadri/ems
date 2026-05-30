@@ -3,6 +3,7 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import { loginUser, registerUser, getMe, logoutUser } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
+import { loginUser, registerUser, getMe, logoutUser, forgotPassword, resetPassword } from '../controllers/authController.js'
 
 const router = express.Router();
 
@@ -10,6 +11,9 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/me', protect, getMe);
 router.post('/logout', logoutUser);
+
+router.post('/forgot-password', forgotPassword);
+router.put('/reset-password/:token', resetPassword);
 
 router.get('/google',
   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
