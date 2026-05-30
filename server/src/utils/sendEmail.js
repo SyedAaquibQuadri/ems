@@ -1,19 +1,22 @@
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import nodemailer from 'nodemailer'
 
 const sendEmail = async ({ to, subject, html }) => {
-  const { error } = await resend.emails.send({
-    from: 'EMS App <onboarding@resend.dev>',
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  })
+
+  await transporter.sendMail({
+    from: `"EMS App" <${process.env.EMAIL_USER}>`,
     to,
     subject,
     html,
   })
-
-  if (error) {
-    console.error('Resend error:', error)
-    throw new Error('Email service unavailable')
-  }
 }
 
 export default sendEmail
