@@ -1,6 +1,7 @@
-import nodemailer from 'nodemailer';
-
 const sendEmail = async ({ to, subject, html }) => {
+  console.log('EMAIL_USER:', process.env.EMAIL_USER)
+  console.log('EMAIL_PASS length:', process.env.EMAIL_PASS?.length)
+  
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -16,7 +17,7 @@ const sendEmail = async ({ to, subject, html }) => {
     await transporter.verify()
     console.log('Email server connected ✅')
   } catch (err) {
-    console.error('Email server error:', err.message)
+    console.error('Email verify error:', err.message)
     throw new Error('Email service unavailable')
   }
 
@@ -27,5 +28,3 @@ const sendEmail = async ({ to, subject, html }) => {
     html,
   })
 }
-
-export default sendEmail
