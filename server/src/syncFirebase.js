@@ -1,9 +1,13 @@
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
+const dotenv = require('dotenv')
+dotenv.config()
+
 import mongoose from 'mongoose'
-import dotenv from 'dotenv'
-import admin from './config/firebase.js'
+import initFirebase from './config/firebase.js'
 import User from './models/User.js'
 
-dotenv.config()
+const admin = initFirebase()
 
 const syncUsers = async () => {
   await mongoose.connect(process.env.MONGO_URI)
@@ -17,17 +21,15 @@ const syncUsers = async () => {
 
   for (const user of users) {
     try {
-      // Check if already exists in Firebase
       await admin.auth().getUserByEmail(user.email)
       console.log(`⏭ Already exists: ${user.email}`)
       skipped++
     } catch {
-      // Doesn't exist — create with temporary password
       try {
         await admin.auth().createUser({
           email: user.email,
           displayName: user.name,
-          password: 'TempPass123!', // They'll reset via forgot password
+          password: 'TempPass123!',
         })
         console.log(`✅ Created: ${user.email}`)
         success++
