@@ -1,103 +1,159 @@
-import React, { useState } from 'react'
-import { auth } from '../../utils/firebase'
-import { sendPasswordResetEmail } from 'firebase/auth'
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { auth } from "../../utils/firebase";
+import {
+  sendPasswordResetEmail,
+  fetchSignInMethodsForEmail,
+} from "firebase/auth";
 
-const ForgotPassword = ({ onBack }) => {
-  const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [toast, setToast] = useState(null)
-  const [sent, setSent] = useState(false)
+const ForgotPassword = () => {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isGoogleAccount, setIsGoogleAccount] = useState(false);
 
-  const submitHandler = async (e) => {
-    e.preventDefault()
-    if (!email) {
-      setToast({ type: 'error', msg: 'Please enter your email.' })
-      return
-    }
-    setLoading(true)
-    setToast(null)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    setError("");
+    setIsGoogleAccount(false);
+    setLoading(true);
+
     try {
-      await sendPasswordResetEmail(auth, email)
-      setSent(true)
-    } catch (err) {
-        console.log('Firebase error code:', err.code)
-      console.log('Firebase error message:', err.message)
-      const msg =
-        err.code === 'auth/user-not-found' ? 'No account found with that email.' :
-        err.code === 'auth/invalid-email' ? 'Invalid email address.' :
-        err.code === 'auth/too-many-requests' ? 'Too many requests. Try again later.' :
-        `Error: ${err.code}`
-      setToast({ type: 'error', msg })
-    } finally {
-      setLoading(false)
-    }
-  }
+      // Step 1: Check what sign-in methods exist for this email
+      const methods = await fetchSignInMethodsForEmail(auth, email);
 
-  if (sent) return (
-    <div className='flex min-h-screen w-screen items-center justify-center bg-[#0f0f0f] px-4'>
-      <div className='bg-[#181818] border border-[#2a2a2a] rounded-2xl p-8 w-full max-w-sm text-center'>
-        <div className='w-12 h-12 rounded-full bg-emerald-950 border border-emerald-800 flex items-center justify-center mx-auto mb-4'>
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-        </div>
-        <h2 className='text-white text-xl font-medium mb-2'>Check your email</h2>
-        <p className='text-gray-500 text-sm mb-6'>
-          We sent a password reset link to <span className='text-white'>{email}</span>.
-        </p>
-        <button onClick={onBack} className='text-emerald-500 hover:text-emerald-400 text-sm transition-colors'>
-          Back to login
-        </button>
-      </div>
-    </div>
-  )
+      // Step 2: No account found in Firebase
+      if (methods.length === 0) {
+        // Intentionally vague for security — don't confirm whether account exists
+        setMessage(
+          "If an account with this email exists, you'll receive a reset link shortly."
+        );
+        setLoading(false);
+        return;
+      }
+
+      // Step 3: Account exists but uses Google OAuth — no password to reset
+      if (methods.includes("google.com") && !methods.includes("password")) {
+        setIsGoogleAccount(true);
+        setLoading(false);
+        return;
+      }
+
+      // Step 4: Normal email/password account — send reset email
+      await sendPasswordResetEmail(auth, email);
+      setMessage(
+        "Password reset email sent! Check your inbox (and spam folder)."
+      );
+    } catch (err) {
+      // Handle any unexpected Firebase errors
+      switch (err.code) {
+        case "auth/invalid-email":
+          setError("Please enter a valid email address.");
+          break;
+        case "auth/too-many-requests":
+          setError("Too many attempts. Please wait a few minutes and try again.");
+          break;
+        default:
+          setError("Something went wrong. Please try again later.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className='flex min-h-screen w-screen items-center justify-center bg-[#0f0f0f] px-4'>
-      <div className='bg-[#181818] border border-[#2a2a2a] rounded-2xl p-7 w-full max-w-sm'>
-        <button onClick={onBack} className='flex items-center gap-1.5 text-gray-500 hover:text-white text-sm mb-6 transition-colors'>
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-          Back
-        </button>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Forgot Password</h2>
+        <p className="text-gray-500 text-sm mb-6">
+          Enter your email and we'll help you get back in.
+        </p>
 
-        <div className='w-11 h-11 rounded-xl bg-emerald-600 flex items-center justify-center mx-auto mb-5'>
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-          </svg>
-        </div>
-
-        <h1 className='text-white text-center text-2xl font-medium mb-1'>Forgot password?</h1>
-        <p className='text-gray-500 text-center text-sm mb-8'>Enter your email and we'll send you a reset link</p>
-
-        <form onSubmit={submitHandler} className='flex flex-col gap-4'>
-          <div>
-            <label className='text-gray-500 text-xs mb-1.5 block tracking-wide'>Email address</label>
-            <div className='flex items-center gap-2 bg-[#111] border border-[#2a2a2a] rounded-xl px-3 focus-within:border-emerald-600 transition-colors'>
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <input type='email' value={email} onChange={e => setEmail(e.target.value)}
-                placeholder='you@example.com'
-                className='bg-transparent outline-none text-white text-sm py-3.5 w-full placeholder:text-gray-700' />
-            </div>
+        {/* Google account notice */}
+        {isGoogleAccount && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-lg p-4 mb-4 text-sm">
+            <p className="font-semibold mb-1">This account uses Google Sign-In</p>
+            <p>
+              You signed up with Google, so there's no password to reset.
+              Please use the{" "}
+              <Link to="/login" className="underline font-medium">
+                "Continue with Google"
+              </Link>{" "}
+              button on the login page.
+            </p>
           </div>
+        )}
 
-          <button type='submit' disabled={loading}
-            className='bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-medium py-3.5 rounded-xl transition-all cursor-pointer disabled:opacity-60'>
-            {loading ? 'Sending...' : 'Send reset link'}
-          </button>
+        {/* Success message */}
+        {message && (
+          <div className="bg-green-50 border border-green-200 text-green-800 rounded-lg p-4 mb-4 text-sm">
+            {message}
+          </div>
+        )}
 
-          {toast && (
-            <div className='text-sm text-center px-4 py-2.5 rounded-xl border bg-red-950 border-red-700 text-red-300'>
-              {toast.msg}
+        {/* Error message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 mb-4 text-sm">
+            {error}
+          </div>
+        )}
+
+        {/* Only show form if not a confirmed Google account */}
+        {!isGoogleAccount && !message && (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-          )}
-        </form>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm transition disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? "Checking..." : "Send Reset Link"}
+            </button>
+          </form>
+        )}
+
+        {/* Reset button if they typed wrong email */}
+        {(isGoogleAccount || message) && (
+          <button
+            onClick={() => {
+              setIsGoogleAccount(false);
+              setMessage("");
+              setEmail("");
+            }}
+            className="mt-4 text-sm text-blue-600 hover:underline"
+          >
+            Try a different email
+          </button>
+        )}
+
+        <p className="mt-6 text-center text-sm text-gray-500">
+          Remember your password?{" "}
+          <Link to="/login" className="text-blue-600 hover:underline font-medium">
+            Back to login
+          </Link>
+        </p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ForgotPassword
+export default ForgotPassword;
