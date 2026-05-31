@@ -20,10 +20,13 @@ const ForgotPassword = ({ onBack }) => {
       await sendPasswordResetEmail(auth, email)
       setSent(true)
     } catch (err) {
+        console.log('Firebase error code:', err.code)
+      console.log('Firebase error message:', err.message)
       const msg =
         err.code === 'auth/user-not-found' ? 'No account found with that email.' :
         err.code === 'auth/invalid-email' ? 'Invalid email address.' :
-        'Something went wrong. Try again.'
+        err.code === 'auth/too-many-requests' ? 'Too many requests. Try again later.' :
+        `Error: ${err.code}`
       setToast({ type: 'error', msg })
     } finally {
       setLoading(false)
