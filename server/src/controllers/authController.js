@@ -3,6 +3,7 @@ import generateToken from '../utils/generateToken.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import sendEmail from '../utils/sendEmail.js';
+import admin from '../config/firebase.js';
 
 // @desc    Login user
 // @route   POST /api/auth/login
@@ -58,18 +59,25 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Email already registered' })
     }
 
+    // Create user in Firebase Auth
+    try {
+      await admin.auth().createUser({ email, password, displayName: name })
+    } catch (firebaseErr) {
+      console.error('Firebase user creation error:', firebaseErr.message)
+      // Continue even if Firebase fails — our DB is source of truth
+    }
+
     const user = await User.create({ name, email, password, role: 'pending' })
-
     generateToken(res, user._id)
-
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' })
-res.status(201).json({
-  _id: user._id,
-  name: user.name,
-  email: user.email,
-  role: user.role,
-  token, // ← add this
-})
+
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token,
+    })
   } catch (error) {
     res.status(500).json({ message: error.message })
   }

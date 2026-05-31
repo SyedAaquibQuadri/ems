@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import api from '../../utils/api'
+import { auth } from '../../utils/firebase'
+import { sendPasswordResetEmail } from 'firebase/auth'
 
 const ForgotPassword = ({ onBack }) => {
   const [email, setEmail] = useState('')
@@ -16,10 +17,14 @@ const ForgotPassword = ({ onBack }) => {
     setLoading(true)
     setToast(null)
     try {
-      await api.post('/auth/forgot-password', { email })
+      await sendPasswordResetEmail(auth, email)
       setSent(true)
     } catch (err) {
-      setToast({ type: 'error', msg: err.response?.data?.message || 'Something went wrong' })
+      const msg =
+        err.code === 'auth/user-not-found' ? 'No account found with that email.' :
+        err.code === 'auth/invalid-email' ? 'Invalid email address.' :
+        'Something went wrong. Try again.'
+      setToast({ type: 'error', msg })
     } finally {
       setLoading(false)
     }
@@ -34,7 +39,9 @@ const ForgotPassword = ({ onBack }) => {
           </svg>
         </div>
         <h2 className='text-white text-xl font-medium mb-2'>Check your email</h2>
-        <p className='text-gray-500 text-sm mb-6'>We sent a password reset link to <span className='text-white'>{email}</span>. It expires in 15 minutes.</p>
+        <p className='text-gray-500 text-sm mb-6'>
+          We sent a password reset link to <span className='text-white'>{email}</span>.
+        </p>
         <button onClick={onBack} className='text-emerald-500 hover:text-emerald-400 text-sm transition-colors'>
           Back to login
         </button>
