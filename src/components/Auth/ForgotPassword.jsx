@@ -20,31 +20,27 @@ const ForgotPassword = ({ onBack }) => {
     setToast(null)
 
     try {
-      // Ask YOUR backend which provider this email uses
-      const res = await api.get(`/auth/check-email?email=${encodeURIComponent(email)}`)
-      const { provider } = res.data
+  const res = await api.get(`/auth/check-email?email=${encodeURIComponent(email)}`)
+  const { provider } = res.data
 
-      if (provider === 'google') {
-        // Google OAuth user — no password exists, show redirect message
-        setState('google')
-        return
-      }
+  if (provider === 'google') {
+    setState('google')
+    return
+  }
 
-      // Either a password user or unknown email — always attempt reset
-      // Firebase silently ignores non-existent emails (doesn't send anything)
-      // This way we never leak whether an account exists
-      await sendPasswordResetEmail(auth, email)
-      setState('sent')
+  // Add this log — confirm this line is being reached
+  console.log('Calling sendPasswordResetEmail for:', email)
+  await sendPasswordResetEmail(auth, email)
+  console.log('sendPasswordResetEmail completed')
+  setState('sent')
 
-    } catch (err) {
-      if (err.code === 'auth/too-many-requests') {
-        setToast({ type: 'error', msg: 'Too many attempts. Please wait a few minutes.' })
-      } else if (err.code === 'auth/invalid-email') {
-        setToast({ type: 'error', msg: 'Please enter a valid email address.' })
-      } else {
-        setToast({ type: 'error', msg: 'Something went wrong. Please try again.' })
-      }
-    } finally {
+} catch (err) {
+  // Log the FULL error so we can see what Firebase actually returns
+  console.error('Full error:', err)
+  console.error('Error code:', err.code)
+  console.error('Error message:', err.message)
+  setToast({ type: 'error', msg: err.message || 'Something went wrong.' })
+}finally {
       setLoading(false)
     }
   }
