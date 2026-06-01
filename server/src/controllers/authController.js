@@ -110,20 +110,34 @@ export const forgotPassword = async (req, res) => {
   try {
     const user = await User.findOne({ email })
     if (!user) {
-      return res.status(404).json({ message: 'No account found with that email' })
+      // Don't reveal if account exists
+      return res.json({ message: 'If that email is registered, a reset link is on its way.' })
     }
 
-    // Use Firebase to send reset email
-    try {
-      const admin = initFirebase()
-      const resetLink = await admin.auth().generatePasswordResetLink(email)
-      console.log('Reset link generated:', resetLink)
-    } catch (firebaseErr) {
-      console.error('Firebase reset error:', firebaseErr.message)
-      return res.status(500).json({ message: 'Failed to send reset email' })
+    if (user.googleId) {
+      return res.status(400).json({ message: 'google_account' })
     }
 
-    res.json({ message: 'Password reset email sent' })
+    // Generate token and save to DB
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000 // 15 minutes
+    await user.save()
+
+    // Send email via nodemailer
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`
+    await sendEmail({
+      to: email,
+      subject: 'Reset your EMS password',
+      html: `
+        <p>You requested a password reset.</p>
+        <p>Click the link below. It expires in 15 minutes.</p>
+        <a href="${resetUrl}">${resetUrl}</a>
+        <p>If you didn't request this, ignore this email.</p>
+      `
+    })
+
+    res.json({ message: 'If that email is registered, a reset link is on its way.' })
   } catch (error) {
     res.status(500).json({ message: error.message })
   }

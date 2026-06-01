@@ -10,40 +10,29 @@ const ForgotPassword = ({ onBack }) => {
   const [state, setState] = useState('form') // 'form' | 'google' | 'sent'
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!email) {
-      setToast({ type: 'error', msg: 'Please enter your email address.' })
-      return
-    }
-
-    setLoading(true)
-    setToast(null)
-
-    try {
-  const res = await api.get(`/auth/check-email?email=${encodeURIComponent(email)}`)
-  const { provider } = res.data
-
-  if (provider === 'google') {
-    setState('google')
+  e.preventDefault()
+  if (!email) {
+    setToast({ type: 'error', msg: 'Please enter your email address.' })
     return
   }
 
-  // Add this log — confirm this line is being reached
-  console.log('Calling sendPasswordResetEmail for:', email)
-  await sendPasswordResetEmail(auth, email)
-  console.log('sendPasswordResetEmail completed')
-  setState('sent')
+  setLoading(true)
+  setToast(null)
 
-} catch (err) {
-  // Log the FULL error so we can see what Firebase actually returns
-  console.error('Full error:', err)
-  console.error('Error code:', err.code)
-  console.error('Error message:', err.message)
-  setToast({ type: 'error', msg: err.message || 'Something went wrong.' })
-}finally {
-      setLoading(false)
+  try {
+    const res = await api.post('/auth/forgot-password', { email })
+    setState('sent')
+  } catch (err) {
+    const msg = err.response?.data?.message
+    if (msg === 'google_account') {
+      setState('google')
+    } else {
+      setToast({ type: 'error', msg: msg || 'Something went wrong.' })
     }
+  } finally {
+    setLoading(false)
   }
+}
 
   const tryAgain = () => {
     setState('form')
