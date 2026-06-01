@@ -129,6 +129,28 @@ export const forgotPassword = async (req, res) => {
   }
 }
 
+// @desc   Check if email exists and what provider it uses
+// @route  GET /api/auth/check-email
+// @access Public
+export const checkEmail = async (req, res) => {
+  try {
+    const { email } = req.query
+    if (!email) return res.status(400).json({ message: 'Email is required' })
+
+    const user = await User.findOne({ email: email.toLowerCase() })
+
+    if (!user) {
+      // Don't reveal whether the account exists — security best practice
+      return res.json({ provider: 'unknown' })
+    }
+
+    const provider = user.googleId ? 'google' : 'password'
+    return res.json({ provider })
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error' })
+  }
+}
+
 // @desc    Reset password
 // @route   PUT /api/auth/reset-password/:token
 export const resetPassword = async (req, res) => {
