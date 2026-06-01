@@ -3,6 +3,7 @@ import generateToken from '../utils/generateToken.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import initFirebase from '../config/firebase.js';
+import sendEmail from '../utils/sendEmail.js';
 
 // @desc    Login user
 // @route   POST /api/auth/login
