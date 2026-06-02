@@ -141,6 +141,7 @@ export const forgotPassword = async (req, res) => {
 
     res.json({ message: 'If that email is registered, a reset link is on its way.' })
   } catch (error) {
+    console.error('forgotPassword error:', error)
     res.status(500).json({ message: error.message })
   }
 }
