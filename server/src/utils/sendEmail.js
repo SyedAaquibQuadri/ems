@@ -2,15 +2,15 @@ import nodemailer from 'nodemailer'
 import { google } from 'googleapis'
 
 const sendEmail = async ({ to, subject, html }) => {
-  const requiredVars = ['GMAIL_CLIENT_ID', 'GMAIL_CLIENT_SECRET', 'GMAIL_REFRESH_TOKEN', 'GMAIL_FROM_EMAIL']
+  const requiredVars = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GMAIL_REFRESH_TOKEN', 'GMAIL_FROM_EMAIL']
   const missing = requiredVars.filter(v => !process.env[v])
   if (missing.length) {
     throw new Error(`Missing environment variables: ${missing.join(', ')}`)
   }
 
   const oauth2Client = new google.auth.OAuth2(
-    process.env.GMAIL_CLIENT_ID,
-    process.env.GMAIL_CLIENT_SECRET,
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
     'https://developers.google.com/oauthplayground'
   )
 
@@ -29,8 +29,8 @@ const sendEmail = async ({ to, subject, html }) => {
       auth: {
         type: 'OAuth2',
         user: process.env.GMAIL_FROM_EMAIL,
-        clientId: process.env.GMAIL_CLIENT_ID,
-        clientSecret: process.env.GMAIL_CLIENT_SECRET,
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         refreshToken: process.env.GMAIL_REFRESH_TOKEN,
         accessToken: accessToken,
       },
