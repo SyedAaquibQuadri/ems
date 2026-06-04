@@ -15,9 +15,14 @@ router.post('/forgot-password', forgotPassword);
 router.put('/reset-password/:token', resetPassword);
 router.get('/check-email', checkEmail);
 
-router.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'], session: false })
-);
+router.get('/google', (req, res, next) => {
+  const state = req.query.state || '';
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    session: false,
+    state: state       // passes state through Google and back to callback
+  })(req, res, next);
+});
 
 router.get('/google/callback',
   passport.authenticate('google', {
@@ -28,7 +33,15 @@ router.get('/google/callback',
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
       expiresIn: '30d',
     });
-    res.redirect(`${process.env.CLIENT_URL}?token=${token}`);
+
+    // Redirect based on role
+    if (req.user.role === 'admin' && !req.user.companyId) {
+      // Admin needs to complete company setup
+      res.redirect(`${process.env.CLIENT_URL}/company-setup?token=${token}`);
+    } else {
+      // Employee goes straight to dashboard
+      res.redirect(`${process.env.CLIENT_URL}/dashboard?token=${token}`);
+    }
   }
 );
 

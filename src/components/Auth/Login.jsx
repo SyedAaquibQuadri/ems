@@ -12,6 +12,10 @@ const Login = ({ onSwitchToRegister }) => {
   const [showSuperAdmin, setShowSuperAdmin] = useState(false)
   const [superAdminCode, setSuperAdminCode] = useState('')
   const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [showGoogleModal, setShowGoogleModal] = useState(false)
+  const [googleRole, setGoogleRole] = useState('employee')
+  const [googleCompanyCode, setGoogleCompanyCode] = useState('')
+  const [googleModalError, setGoogleModalError] = useState('')
 
   const getStrength = (val) => {
     let score = 0
@@ -50,6 +54,24 @@ const Login = ({ onSwitchToRegister }) => {
       setLoading(false)
     }
   }
+
+  const handleGoogleOAuth = () => {
+  if (!googleRole) {
+    setGoogleModalError('Please select a role.')
+    return
+  }
+  if (googleRole === 'employee' && !googleCompanyCode.trim()) {
+    setGoogleModalError('Please enter your company code.')
+    return
+  }
+
+  const stateData = { role: googleRole }
+  if (googleRole === 'employee') stateData.companyCode = googleCompanyCode.trim()
+
+  const state = btoa(JSON.stringify(stateData))
+  const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000'
+  window.location.href = `${serverUrl}/api/auth/google?state=${state}`
+}
 
   if (showForgotPassword) return <ForgotPassword onBack={() => setShowForgotPassword(false)} />
 
@@ -140,24 +162,91 @@ const Login = ({ onSwitchToRegister }) => {
           <div className='flex-1 h-px bg-[#2a2a2a]' />
         </div>
 
-        <button
-          onClick={() => window.location.href = `${import.meta.env.VITE_SERVER_URL || 'http://localhost:5000'}/api/auth/google`}
-          className='w-full border border-[#2a2a2a] hover:border-[#4b5563] hover:bg-[#1f1f1f] text-gray-300 py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer'>
-          <svg className='w-4 h-4' viewBox='0 0 24 24'>
-            <path fill='#4285F4' d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'/>
-            <path fill='#34A853' d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'/>
-            <path fill='#FBBC05' d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z'/>
-            <path fill='#EA4335' d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'/>
-          </svg>
-          Continue with Google
-        </button>
+       {/* Google OAuth Modal */}
+{showGoogleModal && (
+  <div className='fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4'>
+    <div className='bg-[#181818] border border-[#2a2a2a] rounded-2xl p-6 w-full max-w-sm'>
+      <h2 className='text-white text-lg font-medium mb-1'>Continue with Google</h2>
+      <p className='text-gray-500 text-sm mb-5'>Tell us who you are before continuing</p>
 
-        <p className='text-center text-gray-600 text-sm mt-5'>
-          Don't have an account?{' '}
-          <button onClick={onSwitchToRegister} className='text-emerald-500 hover:text-emerald-400 transition-colors'>
-            Sign up
-          </button>
-        </p>
+      {/* Role Selection */}
+      <div className='flex gap-3 mb-5'>
+        <button
+          type='button'
+          onClick={() => setGoogleRole('employee')}
+          className={`flex-1 py-3 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
+            googleRole === 'employee'
+              ? 'bg-emerald-600 border-emerald-600 text-white'
+              : 'border-[#2a2a2a] text-gray-400 hover:border-emerald-700'
+          }`}>
+          Employee
+        </button>
+        <button
+          type='button'
+          onClick={() => setGoogleRole('admin')}
+          className={`flex-1 py-3 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
+            googleRole === 'admin'
+              ? 'bg-emerald-600 border-emerald-600 text-white'
+              : 'border-[#2a2a2a] text-gray-400 hover:border-emerald-700'
+          }`}>
+          Admin
+        </button>
+      </div>
+
+      {/* Company Code — only for employee */}
+      {googleRole === 'employee' && (
+        <div className='mb-5'>
+          <label className='text-gray-500 text-xs mb-1.5 block tracking-wide'>Company Code</label>
+          <div className='flex items-center gap-2 bg-[#111] border border-[#2a2a2a] rounded-xl px-3 focus-within:border-emerald-600 transition-colors'>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <input
+              type='text'
+              value={googleCompanyCode}
+              onChange={e => setGoogleCompanyCode(e.target.value.toUpperCase())}
+              placeholder='Enter company code e.g. ABC123'
+              className='bg-transparent outline-none text-white text-sm py-3.5 w-full placeholder:text-gray-700 uppercase' />
+          </div>
+        </div>
+      )}
+
+      {googleModalError && (
+        <div className='text-sm text-center px-4 py-2.5 rounded-xl border bg-red-950 border-red-700 text-red-300 mb-4'>
+          {googleModalError}
+        </div>
+      )}
+
+      <div className='flex gap-3'>
+        <button
+          type='button'
+          onClick={() => { setShowGoogleModal(false); setGoogleModalError('') }}
+          className='flex-1 border border-[#2a2a2a] text-gray-400 py-3 rounded-xl text-sm hover:border-[#4b5563] transition-all cursor-pointer'>
+          Cancel
+        </button>
+        <button
+          type='button'
+          onClick={handleGoogleOAuth}
+          className='flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl text-sm font-medium transition-all cursor-pointer'>
+          Continue
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+<button
+  type='button'
+  onClick={() => setShowGoogleModal(true)}
+  className='w-full border border-[#2a2a2a] hover:border-[#4b5563] hover:bg-[#1f1f1f] text-gray-300 py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer'>
+  <svg className='w-4 h-4' viewBox='0 0 24 24'>
+    <path fill='#4285F4' d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'/>
+    <path fill='#34A853' d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'/>
+    <path fill='#FBBC05' d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z'/>
+    <path fill='#EA4335' d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'/>
+  </svg>
+  Continue with Google
+</button>
       </div>
     </div>
   )
