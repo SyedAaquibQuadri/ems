@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/User.js';
-import Company from '../models/Company.js';
+import Organization from '../models/Organization.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -15,7 +15,7 @@ passport.use(
     },
     async (req, accessToken, refreshToken, profile, done) => {
       try {
-        // Decode state to get role and companyCode
+        // Decode state to get role and company code
         let role = 'employee';
         let companyCode = null;
 
@@ -23,7 +23,7 @@ passport.use(
           try {
             const decoded = JSON.parse(Buffer.from(req.query.state, 'base64').toString('utf8'));
             role = decoded.role || 'employee';
-            companyCode = decoded.companyCode || null;
+            companyCode = decoded.slug || decoded.companyCode || null;
           } catch {
             return done(new Error('Invalid OAuth state. Please try again.'), null);
           }
@@ -48,11 +48,12 @@ passport.use(
           if (!companyCode) {
             return done(new Error('Company code is required for employees.'), null);
           }
-          const company = await Company.findOne({ companyCode: companyCode });
-          if (!company) {
+
+          const organization = await Organization.findOne({ companyCode });
+          if (!organization) {
             return done(new Error('Invalid company code. Please check and try again.'), null);
           }
-          companyId = company._id;
+          companyId = organization._id;
         }
 
         // Create new user
