@@ -14,6 +14,9 @@ passport.use(
       passReqToCallback: true,
     },
     async (req, accessToken, refreshToken, profile, done) => {
+      console.log('[3] Passport callback fired');
+      console.log('[4] req.cookies:', req.cookies);
+      console.log('[5] raw cookie header:', req.headers.cookie);
       try {
         let role = 'employee';
         let orgSlug = null;

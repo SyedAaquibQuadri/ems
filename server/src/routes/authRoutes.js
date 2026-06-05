@@ -15,12 +15,23 @@ router.post('/forgot-password', forgotPassword);
 router.put('/reset-password/:token', resetPassword);
 router.get('/check-email', checkEmail);
 
+// In the /google route
 router.get('/google', (req, res, next) => {
   const state = req.query.state || '';
+  console.log('[1] /google hit, state received:', state);
+
+  res.cookie('oauth_state', state, {
+  httpOnly: true,
+  maxAge: 5 * 60 * 1000,
+  sameSite: 'none',   // needed for cross-site OAuth round-trip
+  secure: true,       // required with sameSite: none, works on Render (HTTPS)
+  path: '/',
+});
+
+  console.log('[2] Cookie set, proceeding to Google...');
   passport.authenticate('google', {
     scope: ['profile', 'email'],
-    session: false,
-    state: state       // passes state through Google and back to callback
+    session: false
   })(req, res, next);
 });
 
