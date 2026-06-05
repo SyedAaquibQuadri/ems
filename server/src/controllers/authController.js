@@ -81,9 +81,12 @@ export const registerUser = async (req, res) => {
 // @route   GET /api/auth/me
 export const getMe = async (req, res) => {
   try {
+    console.log('[GETME] req.user:', req.user)
     const user = await User.findById(req.user._id)
       .select('-password')
       .populate('organizationId', 'name slug')
+    console.log('[GETME] user fetched:', user?._id)
+    console.log('[GETME] organizationId:', user?.organizationId)
     res.json({
       _id: user._id,
       name: user.name,
@@ -94,6 +97,7 @@ export const getMe = async (req, res) => {
       orgSlug: user.organizationId?.slug,
     })
   } catch (error) {
+    console.log('[GETME] error:', error.message)
     res.status(500).json({ message: error.message })
   }
 }
