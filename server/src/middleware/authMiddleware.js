@@ -14,17 +14,16 @@ export const protect = async (req, res, next) => {
   console.log('[AUTH] JWT_SECRET exists:', !!process.env.JWT_SECRET)
   console.log('[AUTH] JWT_SECRET length:', process.env.JWT_SECRET?.length)
 
-  if (!token) {
-    return res.status(401).json({ message: 'Not authorized, no token' })
-  }
- 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    req.user = await User.findById(decoded.id).select('-password')
-    next()
-  } catch (error) {
-    return res.status(401).json({ message: 'Not authorized, token failed' })
-  }
+  const decoded = jwt.verify(token, process.env.JWT_SECRET)
+  console.log('[AUTH] decoded:', decoded)
+  req.user = await User.findById(decoded.id).select('-password')
+  console.log('[AUTH] user found:', req.user?._id)
+  next()
+} catch (error) {
+  console.log('[AUTH] verify error:', error.message)
+  return res.status(401).json({ message: 'Not authorized, token failed' })
+}
 }
 
 export const adminOnly = (req, res, next) => {
