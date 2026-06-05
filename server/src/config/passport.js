@@ -11,29 +11,28 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
-      passReqToCallback: true,        // <-- THIS is the key addition
+      passReqToCallback: true,
     },
     async (req, accessToken, refreshToken, profile, done) => {
       try {
-        // Decode state to get role and company code
         let role = 'employee';
-        let companyCode = null;
+        let orgSlug = null;
 
-        if (req.query.state) {
+        if (req.cookies?.oauth_state) {
           try {
-            const decoded = JSON.parse(Buffer.from(req.query.state, 'base64').toString('utf8'));
+            const decoded = JSON.parse(Buffer.from(req.cookies.oauth_state, 'base64').toString('utf8'));
             role = decoded.role || 'employee';
-            companyCode = decoded.slug || decoded.companyCode || null;
+            orgSlug = decoded.companyCode || null;
           } catch {
             return done(new Error('Invalid OAuth state. Please try again.'), null);
           }
         }
 
-        // Check if user already exists by googleId
+        // Existing user by googleId
         let user = await User.findOne({ googleId: profile.id });
         if (user) return done(null, user);
 
-        // Check if email already registered normally — link Google to it
+        // Existing user by email — link Google to it
         user = await User.findOne({ email: profile.emails[0].value });
         if (user) {
           user.googleId = profile.id;
@@ -42,18 +41,22 @@ passport.use(
           return done(null, user);
         }
 
-        // New user — validate company code for employees
-        let companyId = null;
-        if (role === 'employee') {
-          if (!companyCode) {
-            return done(new Error('Company code is required for employees.'), null);
-          }
+        // New user — validate org slug for employees
+        let organizationId = null;
+        let assignedRole = role === 'admin' ? 'org_admin' : 'employee';
 
-          const organization = await Organization.findOne({ companyCode });
-          if (!organization) {
-            return done(new Error('Invalid company code. Please check and try again.'), null);
+        if (assignedRole === 'employee') {
+          if (!orgSlug) {
+            return done(new Error('Organization slug is required for employees.'), null);
           }
-          companyId = organization._id;
+          const org = await Organization.findOne({ slug: orgSlug.toLowerCase() });
+          if (!org) {
+            return done(new Error('Invalid organization slug. Please check and try again.'), null);
+          }
+          if (!org.isActive) {
+            return done(new Error('This organization is inactive.'), null);
+          }
+          organizationId = org._id;
         }
 
         // Create new user
@@ -63,8 +66,8 @@ passport.use(
           email: profile.emails[0].value,
           avatar: profile.photos[0].value,
           password: Math.random().toString(36).slice(-8) + 'Aa1!',
-          role: role,
-          companyId: companyId,   // null for admin, real ID for employee
+          role: assignedRole,
+          organizationId: organizationId,   // null for org_admin, real _id for employee
         });
 
         return done(null, user);

@@ -204,8 +204,8 @@ const Login = ({ onSwitchToRegister }) => {
             <input
               type='text'
               value={googleCompanyCode}
-              onChange={e => setGoogleCompanyCode(e.target.value.toUpperCase())}
-              placeholder='Enter company code e.g. ABC123'
+              onChange={e => setGoogleCompanyCode(e.target.value.toLowerCase())}
+              placeholder='Enter organization slug e.g. acme-corp'
               className='bg-transparent outline-none text-white text-sm py-3.5 w-full placeholder:text-gray-700 uppercase' />
           </div>
         </div>

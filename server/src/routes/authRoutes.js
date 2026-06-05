@@ -35,7 +35,7 @@ router.get('/google/callback',
     });
 
     // Redirect based on role
-    if (req.user.role === 'admin' && !req.user.companyId) {
+    if (req.user.role === 'org_admin' && !req.user.organizationId) {
       // Admin needs to complete company setup
       res.redirect(`${process.env.CLIENT_URL}/company-setup?token=${token}`);
     } else {
