@@ -3,6 +3,7 @@ import Header from '../other/Header'
 import TaskListNumbers from '../other/TaskListNumbers'
 import TaskList from '../TaskList/TaskList'
 import api from '../../utils/api'
+import { AuthContext } from '../../context/AuthProvider'
 
 const EmployeeDashboard = () => {
   const { currentUser, loading: authLoading } = useContext(AuthContext)
