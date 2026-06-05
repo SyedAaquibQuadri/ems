@@ -8,24 +8,34 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const params = new URLSearchParams(window.location.search)
-        const token = params.get('token')
-        if (token) {
-          localStorage.setItem('authToken', token)
-          window.history.replaceState({}, '', window.location.pathname)
-        }
-        const { data } = await api.get('/auth/me')
-        setCurrentUser(data)
-      } catch {
-        setCurrentUser(null)
-      } finally {
-        setLoading(false)
+  const checkAuth = async () => {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      const token = params.get('token')
+      if (token) {
+        localStorage.setItem('authToken', token)
+        window.history.replaceState({}, '', window.location.pathname)
       }
+
+      // Only call /auth/me if we actually have a token
+      const storedToken = localStorage.getItem('authToken')
+      if (!storedToken) {
+        setCurrentUser(null)
+        setLoading(false)
+        return
+      }
+
+      const { data } = await api.get('/auth/me')
+      setCurrentUser(data)
+    } catch {
+      setCurrentUser(null)
+      localStorage.removeItem('authToken')  // clear invalid token
+    } finally {
+      setLoading(false)
     }
-    checkAuth()
-  }, [])
+  }
+  checkAuth()
+}, [])
 
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password })
