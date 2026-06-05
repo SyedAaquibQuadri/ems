@@ -56,13 +56,9 @@ const Login = ({ onSwitchToRegister }) => {
   }
 
   const handleGoogleOAuth = () => {
-  if (!googleRole) {
-    setGoogleModalError('Please select a role.')
-    return
-  }
+  if (!googleRole) { setGoogleModalError('Please select a role.'); return }
   if (googleRole === 'employee' && !googleCompanyCode.trim()) {
-    setGoogleModalError('Please enter your company code.')
-    return
+    setGoogleModalError('Please enter your organization slug.'); return
   }
 
   const stateData = { role: googleRole }
@@ -70,7 +66,14 @@ const Login = ({ onSwitchToRegister }) => {
 
   const state = btoa(JSON.stringify(stateData))
   const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000'
-  window.location.href = `${serverUrl}/api/auth/google?state=${state}`
+  const fullUrl = `${serverUrl}/api/auth/google?state=${state}`
+
+  console.log('>>> VITE_SERVER_URL:', import.meta.env.VITE_SERVER_URL)
+  console.log('>>> stateData:', stateData)
+  console.log('>>> encoded state:', state)
+  console.log('>>> full URL:', fullUrl)
+
+  window.location.href = fullUrl
 }
 
   if (showForgotPassword) return <ForgotPassword onBack={() => setShowForgotPassword(false)} />
