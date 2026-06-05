@@ -5,9 +5,16 @@ import TaskList from '../TaskList/TaskList'
 import api from '../../utils/api'
 
 const EmployeeDashboard = () => {
+  const { currentUser, loading: authLoading } = useContext(AuthContext)
   const [tasks, setTasks] = useState([])
   const [summary, setSummary] = useState({ new: 0, active: 0, completed: 0, failed: 0 })
   const [loading, setLoading] = useState(true)
+
+  if (authLoading || !currentUser) return (
+    <div className='flex h-screen items-center justify-center bg-[#1C1C1C]'>
+      <p className='text-gray-500 text-sm'>Loading...</p>
+    </div>
+  )
 
   const fetchTasks = async () => {
   try {

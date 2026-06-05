@@ -9,10 +9,19 @@ import TaskAnalytics from '../other/TaskAnalytics'
 
 
 const AdminDashboard = () => {
-  const { currentUser } = useContext(AuthContext)  // ← moved inside component
+  const { currentUser, loading: authLoading } = useContext(AuthContext)
   const [employees, setEmployees] = useState([])
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
+
+  // Add this guard — prevents all children rendering before auth is ready
+  if (authLoading || !currentUser) return (
+    <div className='flex h-screen items-center justify-center bg-[#0f0f0f]'>
+      <p className='text-gray-500 text-sm'>Loading...</p>
+    </div>
+  )
+
+  // rest of component stays exactly the same
 
   const fetchData = async () => {
     try {
