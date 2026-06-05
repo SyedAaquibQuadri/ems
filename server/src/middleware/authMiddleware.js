@@ -11,6 +11,8 @@ export const protect = async (req, res, next) => {
   console.log('[AUTH] cookie jwt:', req.cookies.jwt)
   console.log('[AUTH] auth header:', req.headers.authorization)
   console.log('[AUTH] token found:', token)
+  console.log('[AUTH] JWT_SECRET exists:', !!process.env.JWT_SECRET)
+  console.log('[AUTH] JWT_SECRET length:', process.env.JWT_SECRET?.length)
 
   if (!token) {
     return res.status(401).json({ message: 'Not authorized, no token' })
