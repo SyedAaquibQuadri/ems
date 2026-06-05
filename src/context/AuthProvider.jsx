@@ -14,7 +14,7 @@ const AuthProvider = ({ children }) => {
         const token = params.get('token')
         if (token) {
           localStorage.setItem('authToken', token)
-          window.history.replaceState({}, '', '/')
+          window.history.replaceState({}, '', window.location.pathname)
         }
         const { data } = await api.get('/auth/me')
         setCurrentUser(data)

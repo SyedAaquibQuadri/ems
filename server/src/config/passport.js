@@ -13,10 +13,7 @@ passport.use(
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
       passReqToCallback: true,
     },
-    async (req, accessToken, refreshToken, profile, done) => {
-      console.log('[3] Passport callback fired');
-      console.log('[4] req.cookies:', req.cookies);
-      console.log('[5] raw cookie header:', req.headers.cookie);
+    async (req, accessToken, refreshToken, profile, done) => {;
       try {
         let role = 'employee';
         let orgSlug = null;
