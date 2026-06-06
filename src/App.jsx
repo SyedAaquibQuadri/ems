@@ -8,6 +8,7 @@ import Homepage from './components/Homepage'
 import { AuthContext } from './context/AuthProvider'
 import SuperAdminDashboard from './components/Dashboard/SuperAdminDashboard'
 import ResetPassword from './components/Auth/ResetPassword'
+import CompanySetup from './components/CompanySetup'
 
 const isAdmin = (user) =>
   user?.role === 'admin' ||
@@ -48,6 +49,13 @@ const App = () => {
             : <EmployeeDashboard />
       } />
       <Route path='/reset-password/:token' element={<ResetPassword />} />
+      <Route path='/company-setup' element={
+        !currentUser
+          ? <Navigate to='/login' />
+          : currentUser.role !== 'org_admin' || currentUser.organizationId
+            ? <Navigate to='/dashboard' />  // already set up, or wrong role
+            : <CompanySetup />
+      } />
     </Routes>
   )
 }

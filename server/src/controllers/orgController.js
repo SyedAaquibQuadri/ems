@@ -110,3 +110,33 @@ export const getMyOrg = async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 }
+
+// @desc    Create org for an already-authenticated org_admin (Google OAuth flow)
+// @route   POST /api/org/setup
+export const setupOrganization = async (req, res) => {
+  const { orgName } = req.body
+  try {
+    const user = await User.findById(req.user._id)
+    if (!user) return res.status(404).json({ message: 'User not found' })
+    if (user.role !== 'org_admin') return res.status(403).json({ message: 'Not authorized' })
+    if (user.organizationId) return res.status(400).json({ message: 'Organization already set up' })
+
+    // Generate unique slug
+    let slug = generateSlug(orgName)
+    const slugExists = await Organization.findOne({ slug })
+    if (slugExists) slug = `${slug}-${Date.now()}`
+
+    // Create org and link to existing user
+    const org = await Organization.create({ name: orgName, slug, owner: user._id })
+    user.organizationId = org._id
+    await user.save()
+
+    res.json({
+      organizationId: org._id,
+      orgName: org.name,
+      orgSlug: org.slug,
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}
