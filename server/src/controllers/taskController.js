@@ -36,7 +36,11 @@ export const getAllTasks = async (req, res) => {
       .populate('assignedTo', 'name email')
       .populate('assignedBy', 'name email')
       .sort({ createdAt: -1 })
-    res.json(tasks)
+
+    // Filter out tasks whose assigned employee was deleted
+    const safeTasks = tasks.filter(t => t.assignedTo !== null)  // ← add this line
+
+    res.json(safeTasks)  // ← return safeTasks instead of tasks
   } catch (error) {
     res.status(500).json({ message: error.message })
   }

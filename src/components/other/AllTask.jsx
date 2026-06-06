@@ -8,12 +8,13 @@ const AllTask = ({ tasks }) => {
   // Build per-employee summary from tasks array
   const employeeMap = {}
   tasks.forEach(task => {
-    const emp = task.assignedTo
-    if (!employeeMap[emp._id]) {
-      employeeMap[emp._id] = { name: emp.name, new: 0, active: 0, completed: 0, failed: 0 }
-    }
-    employeeMap[emp._id][task.status === 'new' ? 'new' : task.status]++
-  })
+  const emp = task.assignedTo
+  if (!emp || !emp._id) return  // ← add this line
+  if (!employeeMap[emp._id]) {
+    employeeMap[emp._id] = { name: emp.name, new: 0, active: 0, completed: 0, failed: 0 }
+  }
+  employeeMap[emp._id][task.status === 'new' ? 'new' : task.status]++
+})
   const employees = Object.values(employeeMap)
 
   return (
