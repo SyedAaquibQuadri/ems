@@ -60,15 +60,15 @@ passport.use(
         }
 
         // Create new user
-        user = await User.create({
-          googleId: profile.id,
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          avatar: profile.photos[0].value,
-          password: Math.random().toString(36).slice(-8) + 'Aa1!',
-          role: assignedRole,
-          organizationId: organizationId,   // null for org_admin, real _id for employee
-        });
+          user = await User.create({
+            googleId: profile.id,
+            name: profile.displayName,
+            email: profile.emails[0].value,
+            avatar: profile.photos[0].value,
+            password: Math.random().toString(36).slice(-8) + 'Aa1!',
+            role: assignedRole === 'employee' ? 'pending' : assignedRole,  // ← fix this line
+            organizationId: organizationId,
+          });
 
         return done(null, user);
 
