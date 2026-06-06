@@ -206,7 +206,7 @@ const Login = ({ onSwitchToRegister }) => {
               value={googleCompanyCode}
               onChange={e => setGoogleCompanyCode(e.target.value.toLowerCase())}
               placeholder='Enter organization slug e.g. acme-corp'
-              className='bg-transparent outline-none text-white text-sm py-3.5 w-full placeholder:text-gray-700 uppercase' />
+              className='bg-transparent outline-none text-white text-sm py-3.5 w-full placeholder:text-gray-700 lowercase' />
           </div>
         </div>
       )}
