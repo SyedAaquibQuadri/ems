@@ -53,8 +53,6 @@ export const registerUser = async (req, res) => {
     if (userExists) {
       return res.status(400).json({ message: 'Email already registered' })
     }
-
-    // Create user in Firebase Auth
     try {
       const admin = initFirebase()
       await admin.auth().createUser({ email, password, displayName: name })
@@ -63,14 +61,10 @@ export const registerUser = async (req, res) => {
     }
 
     const user = await User.create({ name, email, password, role: 'pending' })
-    generateToken(res, user._id)
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' })
+
+    // ✅ Don't generate token — pending users must wait for approval
     res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token,
+      message: 'Registration successful. Wait for admin approval before logging in.',
     })
   } catch (error) {
     res.status(500).json({ message: error.message })

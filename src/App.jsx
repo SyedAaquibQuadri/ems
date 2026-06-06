@@ -9,6 +9,7 @@ import { AuthContext } from './context/AuthProvider'
 import SuperAdminDashboard from './components/Dashboard/SuperAdminDashboard'
 import ResetPassword from './components/Auth/ResetPassword'
 import CompanySetup from './components/CompanySetup'
+import PendingApproval from './components/PendingApproval'
 
 const isAdmin = (user) =>
   user?.role === 'admin' ||
@@ -42,11 +43,10 @@ const App = () => {
       } />
       <Route path='/dashboard' element={
         !currentUser ? <Navigate to='/login' /> :
-        currentUser.role === 'super_admin'
-          ? <SuperAdminDashboard />
-          : isAdmin(currentUser)
-            ? <AdminDashboard />
-            : <EmployeeDashboard />
+        currentUser.role === 'pending' ? <Navigate to='/pending' /> :  // ← add this
+        currentUser.role === 'super_admin' ? <SuperAdminDashboard /> :
+        isAdmin(currentUser) ? <AdminDashboard /> :
+        <EmployeeDashboard />
       } />
       <Route path='/reset-password/:token' element={<ResetPassword />} />
       <Route path='/company-setup' element={
@@ -56,6 +56,13 @@ const App = () => {
             ? <Navigate to='/dashboard' />  // already set up, or wrong role
             : <CompanySetup />
       } />
+      <Route path='/pending' element={
+        !currentUser
+          ? <Navigate to='/login' />
+          : currentUser.role !== 'pending'
+            ? <Navigate to='/dashboard' />
+            : <PendingApproval />
+       } />
     </Routes>
   )
 }
